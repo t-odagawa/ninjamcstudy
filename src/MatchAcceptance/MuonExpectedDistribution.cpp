@@ -89,6 +89,8 @@ int main (int argc, char *argv[]) {
     TH2D *hist_muon_mom_cos = new TH2D("hist_muon_mom_cos", "Muon 2d kinematics;p_{#mu} [GeV/c];cos#theta_{#mu}", 40, 0, 4, 200, -1, 1);
     TH2D *hist_muon_mom_deg = new TH2D("hist_muon_mom_deg", "Muon 2d kinematics;p_{#mu} [GeV/c];#theta_{#mu} [degree]", 40, 0, 4, 90, 0, 180);
     TH1D *hist_muon_bm_deg = new TH1D("hist_muon_bm_deg", ";Baby MIND reconstructed angle (#theta_{#mu, BM}) [degree];Entries/2 deg", 90, 0, 180);
+    TH2D *hist_muon_deg_bm_deg = new TH2D("hist_muon_deg_bm_deg",";Baby MIND reconstructed angle (#theta_{#mu, BM}) [degree];#theta_{#mu} [degree]",
+					  90, 180, 0, 90, 180, 0);
 
     while ( reader.ReadNextSpill() > 0 ) {
       nt_tree->GetEntry(nt_entry);
@@ -196,6 +198,7 @@ int main (int argc, char *argv[]) {
 	  hist_muon_mom_cos->Fill(muon_mom, muon_cos, weight);
 	  hist_muon_mom_deg->Fill(muon_mom, muon_ang, weight);
 	  hist_muon_bm_deg->Fill(theta_bm, weight);
+	  hist_muon_deg_bm_deg->Fill(muon_ang, theta_bm, weight);
 	}
       }
   
@@ -209,6 +212,7 @@ int main (int argc, char *argv[]) {
     hist_muon_mom_cos->Write();
     hist_muon_mom_deg->Write();
     hist_muon_bm_deg->Write();
+    hist_muon_deg_bm_deg->Write();
     ofile->Close();
 
   } catch (const std::runtime_error &error) {
