@@ -1,0 +1,12 @@
+*.d
+*.so
+*.o
+bin/
+.DS_Store*
+cmake-build*
+*.pcm
+*Dict.cc
+
+build/
+
+*~
