@@ -23,7 +23,7 @@
 #include <TH2D.h>
 #include <TMath.h>
 #include <TVector3.h>
-#include <iostream>
+
 namespace logging = boost::log;
 namespace fs = boost::filesystem;
 
@@ -189,7 +189,7 @@ int main (int argc, char *argv[]) {
 	if ( detect_muon_bm ) {
 	  std::vector<Double_t> tangent = ntbm->GetBabyMindTangent(matched_babymind_track_id);
 	  Double_t theta_bm = TMath::ATan(TMath::Hypot(tangent.at(0), tangent.at(1))) * TMath::RadToDeg();
-	  if (muon_ang > 60) std::cout << reader.GetEntryNumber() << std::endl;
+
 	  hist_muon_mom->Fill(muon_mom, weight);
 	  hist_muon_cos->Fill(muon_cos, weight);
 	  hist_muon_deg->Fill(muon_ang, weight);
