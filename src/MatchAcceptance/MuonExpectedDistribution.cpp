@@ -132,6 +132,8 @@ int main (int argc, char *argv[]) {
       Bool_t detect_muon_oss = false;
       Int_t iss_ecc_id = -1;
       Int_t oss_ecc_id = -1;
+      TVector3 tss_position;
+      TVector3 tss_tangent;
       auto it_emulsion = input_spill_summary.BeginEmulsion();
       while ( const auto *emulsion = it_emulsion.Next() ) {
 	if ( emulsion->GetParentTrackId() == 0 ||
@@ -148,6 +150,11 @@ int main (int argc, char *argv[]) {
 	  detect_muon_oss = true;
 	  oss_ecc_id = emulsion->GetEcc();
 	} // track detected in Outside SS
+	else if ( (emulsion->GetFilmType() == B2EmulsionType::kShifter) &&
+		  (emulsion->GetPlate() == 15)) {
+	  tss_position = emulsion->GetAbsolutePosition().GetValue();
+	  tss_tangent = emulsion->GetAbsolutePosition().GetValue();
+	}
 	else continue;
       }
 
@@ -156,6 +163,18 @@ int main (int argc, char *argv[]) {
       if ( interaction_ecc_id != iss_ecc_id ||
 	   interaction_ecc_id != oss_ecc_id )
 	detect_muon = false; // interaction ECC and ISS/OSS ECC should be the same
+
+      // Check if the track penetrates the tracker fiducial area
+      TVector3 extrpolated_position;
+      extrapolated_position.SetX(tss_position.X() + tss_tangent.X() * 30.);
+      extrapolated_position.SetY(tss_position.Y() + tss_tangent.Y() * 10.);
+      extrapolated_position.SetX(extrapolated_position.X() - NINJA_POS_X - NINJA_TRACKER_POS_X);
+      extrapolated_position.SetY(extrapolated_position.Y() - NINJA_POS_Y - NINJA_TRACKER_POS_Y);
+
+      if ( extrapolated_position.Y() < -448. ||
+	   extrapolated_position.Y() > 600. ||
+	   extrapolated_position.X() < -600. ||
+	   extrapolated_position.X() > 448. ) continue;
 
       // Check if Baby MIND has track made by the muon
       if (detect_muon) {

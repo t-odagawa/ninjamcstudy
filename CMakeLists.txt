@@ -166,3 +166,4 @@ set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY}
 #add_subdirectory(lib)
 add_subdirectory(src/TrueDistribution)
 add_subdirectory(src/MatchAcceptance)
+add_subdirectory(src/EventSelection)
