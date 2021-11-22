@@ -2,6 +2,7 @@ message (STATUS "Event selection study...")
 
 add_executable(MinimumDistance
 	MinimumDistance.cpp
+	MinimumDistance.hpp
 	)
 
 target_link_libraries(MinimumDistance
