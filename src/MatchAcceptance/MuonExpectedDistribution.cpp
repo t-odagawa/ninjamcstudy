@@ -165,7 +165,7 @@ int main (int argc, char *argv[]) {
 	detect_muon = false; // interaction ECC and ISS/OSS ECC should be the same
 
       // Check if the track penetrates the tracker fiducial area
-      TVector3 extrpolated_position;
+      TVector3 extrapolated_position;
       extrapolated_position.SetX(tss_position.X() + tss_tangent.X() * 30.);
       extrapolated_position.SetY(tss_position.Y() + tss_tangent.Y() * 10.);
       extrapolated_position.SetX(extrapolated_position.X() - NINJA_POS_X - NINJA_TRACKER_POS_X);
