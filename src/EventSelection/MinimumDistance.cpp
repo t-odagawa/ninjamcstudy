@@ -3,6 +3,7 @@
 #include <array>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 // boost include
 #include <boost/log/core.hpp>
@@ -69,11 +70,23 @@ Int_t GetVertexPlate(Double_t z_pos /*um*/) { // z_pos is in ECC coordinate
        - 11 * NINJA_IRON_LAYER_THICK
        - NINJA_SS_AC_THICK
        - NINJA_ENV_THICK ) { // iron ECC
+    BOOST_LOG_TRIVIAL(debug) << "Iron ECC interaction";
     z_pos = z_pos
       + NINJA_EMULSION_LAYER_THICK 
       + 3 * NINJA_FILM_THICK
       + NINJA_SS_AC_THICK; // iron most downstream position -> origin
-    return (Int_t)(-z_pos / (NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK));
+    Int_t film_id = (Int_t)(-z_pos / (NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK));
+    z_pos = z_pos
+      + film_id * (NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK);
+    if (- NINJA_IRON_LAYER_THICK < z_pos &&
+	z_pos <= 0.) {
+      BOOST_LOG_TRIVIAL(debug) << "Iron interaction in iron ECC";
+      return film_id + 3;
+    }
+    else {
+      BOOST_LOG_TRIVIAL(warning) << "Non iron interaction in iron ECC?";
+      return -1;
+    }
   }
   else if ( z_pos > - NINJA_EMULSION_LAYER_THICK
 	    - 132 * NINJA_FILM_THICK
@@ -81,6 +94,7 @@ Int_t GetVertexPlate(Double_t z_pos /*um*/) { // z_pos is in ECC coordinate
 	    - (59 * 2 + 1) * NINJA_ENV_THICK
 	    - 70 * NINJA_IRON_LAYER_THICK
 	    - NINJA_SS_AC_THICK) { // water ECC
+    BOOST_LOG_TRIVIAL(debug) << "Water ECC interaction";
     z_pos = z_pos
       + NINJA_EMULSION_LAYER_THICK
       + 15 * NINJA_FILM_THICK
@@ -90,16 +104,23 @@ Int_t GetVertexPlate(Double_t z_pos /*um*/) { // z_pos is in ECC coordinate
     Int_t unit_id = (Int_t)(-z_pos / (2 * NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK
 				      + NINJA_WATER_LAYER_THICK + 2 * NINJA_ENV_THICK));
     z_pos = z_pos
-      - unit_id * (2 * NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK
+      + unit_id * (2 * NINJA_FILM_THICK + NINJA_IRON_LAYER_THICK
 		   + NINJA_WATER_LAYER_THICK + 2 * NINJA_ENV_THICK); // iron most downstream in one unit -> origin
     if (- NINJA_IRON_LAYER_THICK < z_pos &&
-	z_pos <= 0.) // iron interaction
+	z_pos <= 0.) { // iron interaction
+      BOOST_LOG_TRIVIAL(debug) << "Iron interaction in water ECC";
       return 2 * (unit_id + 8) - 1;
+    }
     else if (- NINJA_IRON_LAYER_THICK - NINJA_FILM_THICK - NINJA_WATER_LAYER_THICK - NINJA_ENV_THICK < z_pos &&
-	     z_pos <= - NINJA_IRON_LAYER_THICK - NINJA_FILM_THICK - NINJA_ENV_THICK) // water interaction
+	     z_pos <= - NINJA_IRON_LAYER_THICK - NINJA_FILM_THICK - NINJA_ENV_THICK) { // water interaction
+      BOOST_LOG_TRIVIAL(debug) << "Water interaction in water ECC";
       return 2 * (unit_id + 8);
+    }
   }
-  else return -1;
+  else {
+    BOOST_LOG_TRIVIAL(warning) << "Non recognized material interaction in water ECC?";
+    return -1;
+  }
 }
 
 void CalcPosInEccCoordinate(TVector3 &vertex_position, Int_t ecc_id) {
@@ -141,13 +162,15 @@ TVector3 SmearPosition(TVector3 true_position /*um*/ ) {
 
 TVector3 SmearTangent(TVector3 true_tangent) {
   TVector3 smear_tangent;
-  smear_tangent.SetZ(1.);
+  smear_tangent.SetZ(true_tangent.Z());
   if (std::hypot(true_tangent.X(), true_tangent.Y()) < 1.e-4) {
     smear_tangent.SetX(gRandom->Gaus(true_tangent.X(), RadialSmearFunction(true_tangent.X())));
     smear_tangent.SetY(gRandom->Gaus(true_tangent.Y(), RadialSmearFunction(true_tangent.Y())));
   }
   else {
     Double_t phi = std::atan(true_tangent.Y() / true_tangent.X());
+    if ( true_tangent.Y() > 0. && true_tangent.X() <= 0. ) phi += M_PI;
+    else if ( true_tangent.Y() <= 0. && true_tangent.X() <= 0. ) phi -= M_PI;
     Double_t radial_tangent = std::hypot(true_tangent.X(), true_tangent.Y());
     Double_t lateral_tangent = 0.;
     radial_tangent = gRandom->Gaus(radial_tangent,
@@ -159,8 +182,8 @@ TVector3 SmearTangent(TVector3 true_tangent) {
     smear_tangent.SetX(smear_tangent_abs * std::cos(phi));
     smear_tangent.SetY(smear_tangent_abs * std::sin(phi));
   }
-  return smear_tangent;
 
+  return smear_tangent;
 }
 
 Double_t RadialSmearFunction(Double_t tangent) {
@@ -177,7 +200,7 @@ Double_t GetMinimumDistance(TVector3 parent_pos, TVector3 daughter_pos, TVector3
     throw std::invalid_argument("size of recon_vertex should be three");
 
   std::array<Double_t,2> extrapolate_distance;
-  TVector3 position_difference = parent_pos - daughter_pos;
+  TVector3 position_difference = daughter_pos - parent_pos;
   // Almost parallel
   if ( TMath::ACos((parent_dir * daughter_dir) / (parent_dir.Mag() * daughter_dir.Mag())) < 1.e-4) {
     extrapolate_distance.at(0) = (parent_pos.Z() + daughter_pos.Z()) / 2. - parent_pos.Z();
@@ -194,13 +217,14 @@ Double_t GetMinimumDistance(TVector3 parent_pos, TVector3 daughter_pos, TVector3
   if ( z_range.at(0) > z_range.at(1) ) {
     std::swap(z_range.at(0), z_range.at(1));
   }
+
   if ( parent_pos.Z() + extrapolate_distance.at(0) < z_range.at(0) ||
-       daughter_pos.Z() + extrapolate_distance.at(1) < z_range.at(0)) {
+       daughter_pos.Z() + extrapolate_distance.at(1) * daughter_dir.Z() < z_range.at(0)) {
     extrapolate_distance.at(0) = z_range.at(0) - parent_pos.Z();
     extrapolate_distance.at(1) = z_range.at(0) - daughter_pos.Z();
   }
   else if ( parent_pos.Z() + extrapolate_distance.at(0) > z_range.at(1) ||
-	    daughter_pos.Z() + extrapolate_distance.at(1) > z_range.at(1)) {
+	    daughter_pos.Z() + extrapolate_distance.at(1) * daughter_dir.Z() > z_range.at(1)) {
     extrapolate_distance.at(0) = z_range.at(1) - parent_pos.Z();
     extrapolate_distance.at(1) = z_range.at(1) - daughter_pos.Z();
   }
@@ -264,6 +288,8 @@ int main (int argc, char *argv[]) {
     Double_t muon_recon_momentum = -1.;
     std::vector<Double_t > muon_true_position(3);
     std::vector<Double_t > muon_recon_position(3); // accuracy
+    std::vector<Double_t > muon_true_tangent(3);
+    std::vector<Double_t > muon_recon_tangent(3);
     Int_t number_of_partners = 0;
     std::vector<Int_t > partner_pdg_code = {};
     std::vector<Int_t > partner_detect_flag = {};
@@ -275,10 +301,14 @@ int main (int argc, char *argv[]) {
     std::vector<Double_t > partner_recon_angle = {};
     std::vector<std::vector<Double_t > > partner_true_position = {};
     std::vector<std::vector<Double_t > > partner_recon_position = {};
+    std::vector<std::vector<Double_t > > partner_true_tangent = {};
+    std::vector<std::vector<Double_t > > partner_recon_tangent = {};
     std::vector<Double_t > partner_true_second_angle = {};
     std::vector<Double_t > partner_recon_second_angle = {};
     std::vector<std::vector<Double_t > > partner_true_second_position = {};
     std::vector<std::vector<Double_t > > partner_recon_second_position = {};
+    std::vector<std::vector<Double_t > > partner_true_second_tangent = {};
+    std::vector<std::vector<Double_t > > partner_recon_second_tangent = {};
     std::vector<Double_t > partner_true_momentum = {};
     std::vector<Double_t > partner_recon_momentum = {};
     std::vector<Double_t > extrapolate_distance = {};
@@ -300,6 +330,8 @@ int main (int argc, char *argv[]) {
     otree->Branch("muon_recon_momentum", &muon_recon_momentum, "muon_recon_momentum/D");
     otree->Branch("muon_true_position", &muon_true_position);
     otree->Branch("muon_recon_position", &muon_recon_position);
+    otree->Branch("muon_true_tangent", &muon_true_tangent);
+    otree->Branch("muon_recon_tangent", &muon_recon_tangent);
     otree->Branch("number_of_partners", &number_of_partners, "number_of_partners/I");
     otree->Branch("partner_pdg_code", &partner_pdg_code);
     otree->Branch("partner_detect_flag", &partner_detect_flag);
@@ -311,10 +343,14 @@ int main (int argc, char *argv[]) {
     otree->Branch("partner_recon_angle", &partner_recon_angle);
     otree->Branch("partner_true_position", &partner_true_position);
     otree->Branch("partner_recon_position", &partner_recon_position);
+    otree->Branch("partner_true_tangent", &partner_true_tangent);
+    otree->Branch("partner_recon_tangent", &partner_recon_tangent);
     otree->Branch("partner_true_second_angle", &partner_true_second_angle);
     otree->Branch("partner_recon_second_angle", &partner_recon_second_angle);
     otree->Branch("partner_true_second_position", &partner_true_second_position);
     otree->Branch("partner_recon_second_position", &partner_recon_second_position);
+    otree->Branch("partner_true_second_tangent", &partner_true_second_tangent);
+    otree->Branch("partner_recon_second_tangent", &partner_recon_second_tangent);
     otree->Branch("partner_true_momentum", &partner_true_momentum);
     otree->Branch("partner_recon_momentum", &partner_recon_momentum);
     otree->Branch("extrapolate_distance", &extrapolate_distance);
@@ -362,7 +398,6 @@ int main (int argc, char *argv[]) {
 	  partner_track_id_vec.push_back((Int_t)track->GetTrackId());
 	  partner_pdg_code_vec.push_back((Int_t)track->GetParticlePdg());
 	  partner_true_momentum_vec.push_back(track->GetInitialMomentum().GetValue().Mag());
-	  partner_detect_flag.push_back(0);
 	  number_of_partners++;
 	}
       } // track
@@ -378,10 +413,14 @@ int main (int argc, char *argv[]) {
       partner_recon_angle.resize(number_of_partners);
       partner_true_position.resize(number_of_partners);
       partner_recon_position.resize(number_of_partners);
+      partner_true_tangent.resize(number_of_partners);
+      partner_recon_tangent.resize(number_of_partners);
       partner_true_second_angle.resize(number_of_partners);
       partner_recon_second_angle.resize(number_of_partners);
       partner_true_second_position.resize(number_of_partners);
       partner_recon_second_position.resize(number_of_partners);
+      partner_true_second_tangent.resize(number_of_partners);
+      partner_recon_second_tangent.resize(number_of_partners);
       partner_true_momentum.resize(number_of_partners);
       partner_recon_momentum.resize(number_of_partners);
       extrapolate_distance.resize(number_of_partners);
@@ -394,8 +433,12 @@ int main (int argc, char *argv[]) {
 	partner_detect_flag.at(ipartner) = 0;
 	partner_true_position.at(ipartner).resize(3);
 	partner_recon_position.at(ipartner).resize(3);
+	partner_true_tangent.at(ipartner).resize(3);
+	partner_recon_tangent.at(ipartner).resize(3);
 	partner_true_second_position.at(ipartner).resize(3);
 	partner_recon_second_position.at(ipartner).resize(3);
+	partner_true_second_tangent.at(ipartner).resize(3);
+	partner_recon_second_tangent.at(ipartner).resize(3);
 	partner_recon_vertex.at(ipartner).resize(3);
 	partner_recon_second_vertex.at(ipartner).resize(3);
       }
@@ -454,7 +497,11 @@ int main (int argc, char *argv[]) {
       auto it_emulsion = input_spill_summary.BeginEmulsion();
       while ( const auto *emulsion = it_emulsion.Next() ) {
 	if ( emulsion->GetFilmType() != B2EmulsionType::kECC ) continue;
-	if ( std::fabs(emulsion->GetPlate() - vertex_plate) > 2 ) continue;
+	if ( emulsion->GetEcc() != vertex_ecc ) continue;
+	if ( emulsion->GetPlate() - vertex_plate != -1 &&
+	     emulsion->GetPlate() - vertex_plate != 0 &&
+	     emulsion->GetPlate() - vertex_plate != 1 &&
+	     emulsion->GetPlate() - vertex_plate != 2 ) continue;
 	// muon basetrack
 	if ( emulsion->GetParentTrackId() == muon_track_id &&
 	     emulsion->GetPlate() == vertex_plate ) {
@@ -465,6 +512,9 @@ int main (int argc, char *argv[]) {
 	  muon_true_position.at(2) = position.Z();
 	  TVector3 tangent = emulsion->GetTangent().GetValue();
 	  muon_true_angle = std::hypot(tangent.X(), tangent.Y());
+	  muon_true_tangent.at(0) = tangent.X();
+	  muon_true_tangent.at(1) = tangent.Y();
+	  muon_true_tangent.at(2) = tangent.Z();
 	  // smear
 	  muon_position_smeared = SmearPosition(position);
 	  muon_recon_position.at(0) = muon_position_smeared.X();
@@ -472,6 +522,9 @@ int main (int argc, char *argv[]) {
 	  muon_recon_position.at(2) = muon_position_smeared.Z();
 	  muon_tangent_smeared = SmearTangent(tangent);
 	  muon_recon_angle = std::hypot(muon_tangent_smeared.X(), muon_tangent_smeared.Y());
+	  muon_recon_tangent.at(0) = muon_tangent_smeared.X();
+	  muon_recon_tangent.at(1) = muon_tangent_smeared.Y();
+	  muon_recon_tangent.at(2) = muon_tangent_smeared.Z();
 	  continue; // go to next basetrack after muon process
 	}
 
@@ -481,7 +534,7 @@ int main (int argc, char *argv[]) {
 						   emulsion->GetParentTrackId());
 	if ( partner_emulsion_track_id != partner_track_id_vec.end() ) {
 	  Int_t partner_index = partner_emulsion_track_id - partner_track_id_vec.begin();
-	  if ( !partner_detect_flag.at(partner_index) ) {
+	  if ( partner_detect_flag.at(partner_index) == 0 ) {
 	    partner_pdg_code.at(partner_index) = emulsion->GetParentTrack().GetParticlePdg();
 	    partner_one_seg_flag.at(partner_index) = 1;
 	    partner_direction_sign.at(partner_index) = 0;
@@ -498,6 +551,9 @@ int main (int argc, char *argv[]) {
 	    true_position_tmp.at(2) = position.Z();
 	    partner_true_position.at(partner_index) = true_position_tmp;
 	    partner_true_angle.at(partner_index) = std::hypot(tangent.X(), tangent.Y());
+	    partner_true_tangent.at(partner_index).at(0) = tangent.X();
+	    partner_true_tangent.at(partner_index).at(1) = tangent.Y();
+	    partner_true_tangent.at(partner_index).at(2) = tangent.Z();
 	    // smear
 	    partner_position_smeared.at(partner_index) = SmearPosition(position);
 	    std::vector<Double_t > recon_position_tmp; recon_position_tmp.resize(3);
@@ -508,6 +564,9 @@ int main (int argc, char *argv[]) {
 	    partner_tangent_smeared.at(partner_index) = SmearTangent(tangent);
 	    partner_recon_angle.at(partner_index) = std::hypot(partner_tangent_smeared.at(partner_index).X(),
 							       partner_tangent_smeared.at(partner_index).Y());
+	    partner_recon_tangent.at(partner_index).at(0) = partner_tangent_smeared.at(partner_index).X();
+	    partner_recon_tangent.at(partner_index).at(1) = partner_tangent_smeared.at(partner_index).Y();
+	    partner_recon_tangent.at(partner_index).at(2) = partner_tangent_smeared.at(partner_index).Z();
 	    // momentum
 	    partner_true_momentum.at(partner_index) = partner_true_momentum_vec.at(partner_index);
 	    partner_direction_sign.at(partner_index) = 1;
@@ -520,6 +579,9 @@ int main (int argc, char *argv[]) {
 	    true_position_tmp.at(2) = position.Z();
 	    partner_true_position.at(partner_index) = true_position_tmp;
 	    partner_true_angle.at(partner_index) = std::hypot(tangent.X(), tangent.Y());
+	    partner_true_tangent.at(partner_index).at(0) = tangent.X();
+	    partner_true_tangent.at(partner_index).at(1) = tangent.Y();
+	    partner_true_tangent.at(partner_index).at(2) = tangent.Z();
 	    // smear
 	    partner_position_smeared.at(partner_index) = SmearPosition(position);
 	    std::vector<Double_t > recon_position_tmp; recon_position_tmp.resize(3);
@@ -530,6 +592,9 @@ int main (int argc, char *argv[]) {
 	    partner_tangent_smeared.at(partner_index) = SmearTangent(tangent);
 	    partner_recon_angle.at(partner_index) = std::hypot(partner_tangent_smeared.at(partner_index).X(),
 							       partner_tangent_smeared.at(partner_index).Y());
+	    partner_recon_tangent.at(partner_index).at(0) = partner_tangent_smeared.at(partner_index).X();
+	    partner_recon_tangent.at(partner_index).at(1) = partner_tangent_smeared.at(partner_index).Y();
+	    partner_recon_tangent.at(partner_index).at(2) = partner_tangent_smeared.at(partner_index).Z();
 	    // momentum
 	    partner_true_momentum.at(partner_index) = partner_true_momentum_vec.at(partner_index);
 	    partner_direction_sign.at(partner_index) = -1;
@@ -542,6 +607,9 @@ int main (int argc, char *argv[]) {
 	    true_position_tmp.at(2) = position.Z();
 	    partner_true_second_position.at(partner_index) = true_position_tmp;
 	    partner_true_second_angle.at(partner_index) = std::hypot(tangent.X(), tangent.Y());
+	    partner_true_second_tangent.at(partner_index).at(0) = tangent.X();
+	    partner_true_second_tangent.at(partner_index).at(1) = tangent.Y();
+	    partner_true_second_tangent.at(partner_index).at(2) = tangent.Z();
 	    // smear
 	    partner_second_position_smeared.at(partner_index) = SmearPosition(position);
 	    std::vector<Double_t > recon_position_tmp; recon_position_tmp.resize(3);
@@ -552,6 +620,9 @@ int main (int argc, char *argv[]) {
 	    partner_second_tangent_smeared.at(partner_index) = SmearTangent(tangent);
 	    partner_recon_second_angle.at(partner_index) = std::hypot(partner_second_tangent_smeared.at(partner_index).X(),
 								      partner_second_tangent_smeared.at(partner_index).Y());
+	    partner_recon_second_tangent.at(partner_index).at(0) = partner_second_tangent_smeared.at(partner_index).X();
+	    partner_recon_second_tangent.at(partner_index).at(1) = partner_second_tangent_smeared.at(partner_index).Y();
+	    partner_recon_second_tangent.at(partner_index).at(2) = partner_second_tangent_smeared.at(partner_index).Z();
 	    partner_one_seg_flag.at(partner_index) = 0;
 	  }
 	  else if ( emulsion->GetPlate() - vertex_plate == 2 ) {
@@ -562,6 +633,9 @@ int main (int argc, char *argv[]) {
 	    true_position_tmp.at(2) = position.Z();
 	    partner_true_second_position.at(partner_index) = true_position_tmp;
 	    partner_true_second_angle.at(partner_index) = std::hypot(tangent.X(), tangent.Y());
+	    partner_true_second_tangent.at(partner_index).at(0) = tangent.X();
+	    partner_true_second_tangent.at(partner_index).at(1) = tangent.Y();
+	    partner_true_second_tangent.at(partner_index).at(2) = tangent.Z();
 	    // smear
 	    partner_second_position_smeared.at(partner_index) = SmearPosition(position);
 	    std::vector<Double_t > recon_position_tmp; recon_position_tmp.resize(3);
@@ -572,6 +646,9 @@ int main (int argc, char *argv[]) {
 	    partner_second_tangent_smeared.at(partner_index) = SmearTangent(tangent);
 	    partner_recon_second_angle.at(partner_index) = std::hypot(partner_second_tangent_smeared.at(partner_index).X(),
 								      partner_second_tangent_smeared.at(partner_index).Y());
+	    partner_recon_second_tangent.at(partner_index).at(0) = partner_second_tangent_smeared.at(partner_index).X();
+	    partner_recon_second_tangent.at(partner_index).at(1) = partner_second_tangent_smeared.at(partner_index).Y();
+	    partner_recon_second_tangent.at(partner_index).at(2) = partner_second_tangent_smeared.at(partner_index).Z();
 	    partner_one_seg_flag.at(partner_index) = 0;
 	  }
 	}
@@ -612,7 +689,7 @@ int main (int argc, char *argv[]) {
 								    z_range, extrapolate_z,
 								    partner_recon_second_vertex.at(ipartner));
 	  second_extrapolate_distance.at(ipartner) = extrapolate_z.at(0);
-	}
+	  }
       }
 
       true_vertex_position.at(0) = vertex_position.X();
