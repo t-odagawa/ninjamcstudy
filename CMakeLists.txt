@@ -67,7 +67,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # ROOT
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT 6.18 CONFIG REQUIRED)
+find_package(ROOT 6.18 CONFIG REQUIRED Minuit)
 include(${ROOT_USE_FILE})
 message(STATUS "Found ROOT: ${ROOT_INCLUDE_DIRS}")
 
@@ -107,7 +107,18 @@ if (NTBM_FOUND)
    include_directories("${NTBM_INCLUDE_DIR}")
 endif ()
 
+# MCS library
+find_package(Mcs REQUIRED)
+if (Mcs_FOUND)
+   message(STATUS "MCS library -- found")
+   message(STATUS "MCS library include dir : ${MCS_INCLUDE_DIR}")
+   include_directories("${MCS_INCLUDE_DIR}")
+endif()
+
 ################ Libraries ################
+
+set(NINJAMC_LIB_PATH ${CMAKE_SOURCE_DIR}/lib)
+include_directories("${NINJAMC_LIB_PATH}")
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(NINJA_MCSTUDY_LIBRARIES "")
@@ -117,6 +128,7 @@ if (NOT APPLE)
             ${Boost_LIBRARIES}
             ${B2MC_LIBRARY}
 	    ${NTBM_LIBRARY}
+	    ${MCS_LIBRARY}
             )
 else ()
     list(APPEND NINJA_MCSTUDY_LIBRARIES
@@ -128,6 +140,7 @@ else ()
             Boost::log
             ${B2MC_LIBRARY}
 	    ${NTBM_LIBRARY}
+	    ${MCS_LIBRARY}
             )
 endif ()
 
@@ -159,11 +172,12 @@ endif ()
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY})
+set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY} ${MCS_LIBRARY})
 
 ################ Sub Directories ################
 
-#add_subdirectory(lib)
+add_subdirectory(lib)
 add_subdirectory(src/TrueDistribution)
 add_subdirectory(src/MatchAcceptance)
 add_subdirectory(src/EventSelection)
+add_subdirectory(src/Kink)

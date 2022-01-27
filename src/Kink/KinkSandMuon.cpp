@@ -1,0 +1,274 @@
+// system includes
+#include <fstream>
+
+// boost includes
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
+// B2 includes
+#include <B2Reader.hh>
+#include <B2SpillSummary.hh>
+#include <B2ClusterSummary.hh>
+#include <B2TrackSummary.hh>
+#include <B2EventSummary.hh>
+#include <B2VertexSummary.hh>
+#include <B2HitSummary.hh>
+#include <B2EmulsionSummary.hh>
+#include <B2Enum.hh>
+#include <B2Pdg.hh>
+
+// MCS includes
+#include <McsConst.hpp>
+#include <McsClass.hpp>
+#include <McsFunction.hpp>
+
+// root includes
+#include <TVector3.h>
+
+// my includes
+#include "MyFunction.hpp"
+
+
+namespace logging = boost::log;
+namespace fs = boost::filesystem;
+
+bool ComparePlate(const B2EmulsionSummary *lhs, const B2EmulsionSummary *rhs) {
+  if (lhs->GetPlate() != rhs->GetPlate()) return lhs->GetPlate() < rhs->GetPlate();
+  return false;
+}
+
+int main (int argc, char *argv[]) {
+
+  logging::core::get()->set_filter
+    (
+     // logging::trivial::severity >= logging::trivial::info
+     logging::trivial::severity >= logging::trivial::debug
+     );
+
+  if ( argc != 3 ) {
+    BOOST_LOG_TRIVIAL(error) << "Usage : " << argv[0]
+			     << " <input B2 file name> <output file name>";
+    std::exit(1);
+  }
+
+  BOOST_LOG_TRIVIAL(info) << "==========Start==========";
+
+  const fs::path input_file(argv[1]);
+
+  try {
+
+    B2Reader reader(input_file);
+
+    std::ofstream ofs(argv[2], std::ios::binary);
+    Momentum_recon::Mom_chain mom_chain;
+    Momentum_recon::Mom_basetrack mom_basetrack;
+    std::pair<Momentum_recon::Mom_basetrack, Momentum_recon::Mom_basetrack> mom_basetrack_pair;
+
+    while ( reader.ReadNextSpill() > 0 ) {
+      
+      auto &spill_summary = reader.GetSpillSummary();
+
+      // Get muon track id
+      int muon_track_id = -2;
+      std::vector<int> ninja_hit_id;
+      std::vector<int> bm_hit_id;
+      auto it_event = spill_summary.BeginTrueEvent();
+      const auto *event = it_event.Next();
+      double norm = event->GetNormalization();
+      auto &primary_vertex_summary = event->GetPrimaryVertex();
+      double total_cross_section = primary_vertex_summary.GetTotalCrossSection();
+      auto it_outgoing_track = primary_vertex_summary.BeginTrack();
+
+      while ( const auto *track = it_outgoing_track.Next() ) {
+
+	if ( !track->HasDetector(B2Detector::kNinja) &&
+	     !track->HasDetector(B2Detector::kBabyMind) ) continue;
+
+	if ( B2Pdg::IsMuonPlusOrMinus(track->GetParticlePdg()) ){
+	  muon_track_id = track->GetTrackId();
+	  // Get scintillator hit id of true muon track
+	  auto it_cluster = track->BeginCluster();
+	  const auto *cluster = it_cluster.Next();
+	  auto it_hit = cluster->BeginHit();
+	  while ( const auto *hit = it_hit.Next() ) {
+	    if ( hit->GetDetectorId() == B2Detector::kBabyMind ) 
+	      bm_hit_id.push_back(hit->GetHitId());
+	    if ( hit->GetDetectorId() == B2Detector::kNinja )
+	      ninja_hit_id.push_back(hit->GetHitId());
+	  }
+	  break;
+	}	  
+      }
+
+      if ( muon_track_id < 0 ) continue;
+
+      // Check muon id & collect basetracks
+      Bool_t muon_detect_flag = false;
+      Bool_t iss_detect_flag = false;
+      Int_t iss_ecc = -1;
+      Bool_t oss_detect_flag = false;
+      Int_t oss_ecc = -1;
+      Bool_t bm_nt_connect_flag = false;
+
+      std::vector<const B2EmulsionSummary*> emulsions;
+      auto it_emulsion = spill_summary.BeginEmulsion();
+      while ( const auto *emulsion = it_emulsion.Next() ) {
+	if ( emulsion->GetParentTrackId() != muon_track_id ) continue;
+	if ( emulsion->GetFilmType() == B2EmulsionType::kECC ) {
+	  if ( emulsion->GetPlate() == 0 || emulsion->GetPlate() == 1 ) { // ISS
+	    iss_detect_flag = true;
+	    iss_ecc = emulsion->GetEcc();
+	  }
+	  else 
+	    emulsions.push_back(emulsion);
+	}
+	else if ( emulsion->GetFilmType() == B2EmulsionType::kShifter ) {
+	  if ( emulsion->GetPlate() == 0 ) {
+	    oss_detect_flag = true;
+	    oss_ecc = emulsion->GetEcc();
+	  }
+	}
+	else continue;		  
+      }
+
+      if ( iss_ecc != oss_ecc ) oss_detect_flag = false;
+
+      std::vector<const B2EmulsionSummary* > emulsions_in_one_ecc;
+      for ( const auto emulsion : emulsions ) {
+	if ( emulsion->GetEcc() != iss_ecc ) continue;
+	emulsions_in_one_ecc.push_back(emulsion);
+      }
+
+      auto it_recon_vertex = spill_summary.BeginReconVertex();
+      int num_bm_hit_in_recon_track = 0;
+      int num_ninja_hit_in_recon_track = 0;
+      while ( auto *vertex = it_recon_vertex.Next() ) {
+	auto it_outgoing_track = vertex->BeginTrack();
+	while ( auto *track = it_outgoing_track.Next() ) {
+	  // Check if muon is correctly connected between BM and NT
+	  auto it_hit = track->BeginHit();
+	  while ( const auto hit = it_hit.Next() ) {
+	    if ( hit->GetDetectorId() == B2Detector::kBabyMind ) {
+	      if ( std::find(bm_hit_id.begin(), bm_hit_id.end(), hit->GetHitId()) != bm_hit_id.end() ) {
+		num_bm_hit_in_recon_track++;
+	      } 	      
+	    }
+	    else if ( hit->GetDetectorId() == B2Detector::kNinja ) {
+	      if ( std::find(ninja_hit_id.begin(), ninja_hit_id.end(), hit->GetHitId()) != ninja_hit_id.end() ) {
+		num_ninja_hit_in_recon_track++;
+	      }
+	    }
+	  }
+	}
+      }
+
+      if ( num_bm_hit_in_recon_track > 4 &&
+	   num_ninja_hit_in_recon_track > 3 )
+	bm_nt_connect_flag = true;
+
+      muon_detect_flag = iss_detect_flag
+	&& oss_detect_flag
+	&& bm_nt_connect_flag;
+
+      if ( !muon_detect_flag ) continue;
+
+      BOOST_LOG_TRIVIAL(debug) << "Fonnd correctly connected muon track : " << reader.GetEntryNumber();
+
+      std::sort(emulsions_in_one_ecc.begin(), emulsions_in_one_ecc.end(), ComparePlate);
+
+      int num_base = emulsions_in_one_ecc.size();
+      int num_link = num_base - 1;
+
+      mom_chain.base.clear();
+      mom_chain.base_pair.clear();
+      mom_chain.base.reserve(num_base);
+      mom_chain.base_pair.reserve(num_link);
+
+      mom_chain.groupid = emulsions_in_one_ecc.at(0)->GetParentTrackId();
+      mom_chain.chainid = -1;
+      mom_chain.unixtime = -1;
+      mom_chain.tracker_track_id = emulsions_in_one_ecc.at(0)->GetMuonTrackId();
+      mom_chain.entry_in_daily_file = reader.GetEntryNumber();
+      mom_chain.stop_flag = 1;
+      mom_chain.particle_flag = emulsions_in_one_ecc.at(0)->GetParentTrack().GetParticlePdg();
+
+      mom_chain.bm_range_mom = emulsions_in_one_ecc.at(0)->GetParentTrack().GetInitialAbsoluteMomentum().GetValue();
+      mom_chain.bm_curvature_mom = norm * total_cross_section * 1e-38 * 6.02e23;
+
+      Double_t downstream_position_z = 0.;
+
+      for ( auto emulsion : emulsions_in_one_ecc ) {
+	TVector3 position = emulsion->GetAbsolutePosition().GetValue();
+	CalcPosInEccCoordinate(position, iss_ecc, kTRUE);
+	SmearPosition(position);
+	TVector3 tangent = emulsion->GetTangent().GetValue();
+	SmearTangentVector(tangent);
+
+	mom_basetrack.pl = emulsion->GetPlate() + 1;
+	mom_basetrack.rawid = emulsion->GetEmulsionTrackId();
+	mom_basetrack.x = position.X();
+	mom_basetrack.y = position.Y();
+	mom_basetrack.z = position.Z();
+	mom_basetrack.ax = tangent.X();
+	mom_basetrack.ay = tangent.Y();
+	mom_basetrack.m[0].zone = 0;
+	mom_basetrack.m[0].view = 0;
+	mom_basetrack.m[0].imager = 0;
+	mom_basetrack.m[0].ph = (int)((emulsion->GetEdepSum() + emulsion->GetEdepDiff()) * 1000 / 2);
+	mom_basetrack.m[0].pixelnum = 0;
+	mom_basetrack.m[0].hitnum = 0;
+	mom_basetrack.m[1].zone = 0;
+	mom_basetrack.m[1].view = 0;
+	mom_basetrack.m[1].imager = 0;
+	mom_basetrack.m[1].ph = (int)((emulsion->GetEdepSum() - emulsion->GetEdepDiff()) * 1000 / 2);
+	mom_basetrack.m[1].pixelnum = 0;
+	mom_basetrack.m[1].hitnum = 0;
+
+	mom_chain.base.push_back(mom_basetrack);
+	
+	mom_basetrack_pair.first = mom_basetrack_pair.second;
+	mom_basetrack_pair.first.z = 0.;
+	mom_basetrack_pair.second.pl = emulsion->GetPlate() + 1;
+	mom_basetrack_pair.second.rawid = emulsion->GetEmulsionTrackId();
+	mom_basetrack_pair.second.x = position.X();
+	mom_basetrack_pair.second.y = position.Y();
+	mom_basetrack_pair.second.z = position.Z() - downstream_position_z;
+	mom_basetrack_pair.second.ax = tangent.X();
+	mom_basetrack_pair.second.ay = tangent.Y();
+	if ( emulsion != emulsions_in_one_ecc.front() ) {
+	  mom_chain.base_pair.push_back(mom_basetrack_pair);	
+	}
+
+	downstream_position_z = position.Z();
+
+      }
+      
+      Momentum_recon::WriteMomChainHeader(ofs, mom_chain);
+      for ( int ibase = 0; ibase < num_base; ibase++ ) {
+	ofs.write((char*)& mom_chain.base.at(ibase), sizeof(Momentum_recon::Mom_basetrack));
+      }
+      for ( int ilink = 0; ilink < num_link; ilink++ ) {
+	ofs.write((char*)& mom_chain.base_pair.at(ilink).first, sizeof(Momentum_recon::Mom_basetrack));
+	ofs.write((char*)& mom_chain.base_pair.at(ilink).second, sizeof(Momentum_recon::Mom_basetrack));
+      }
+
+    }
+
+    ofs.close();
+
+  } catch (const std::runtime_error &error) {
+    BOOST_LOG_TRIVIAL(fatal) << "Runtime error :" << error.what();
+    std::exit(1);
+  } catch (const std::invalid_argument &error) {
+    BOOST_LOG_TRIVIAL(fatal) << "Invalid argument error : " << error.what();
+    std::exit(1);
+  } catch (const std::out_of_range &error) {
+    BOOST_LOG_TRIVIAL(fatal) << "Out of range error : " << error.what();
+    std::exit(1);
+  }
+
+  BOOST_LOG_TRIVIAL(info) << "==========Finish==========";
+  std::exit(0);
+
+}
