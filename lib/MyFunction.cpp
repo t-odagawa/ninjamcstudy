@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -15,8 +17,7 @@ Int_t GetInteractionEcc(const B2VertexSummary &primary_vertex_summary) {
     return -1;
   TVector3 vertex_position = primary_vertex_summary.GetAbsolutePosition().GetValue();
   vertex_position.SetX(vertex_position.X() - NINJA_POS_X - NINJA_ECC_POS_X);
-  vertex_position.SetX(vertex_position.Y() - NINJA_POS_Y - NINJA_ECC_POS_Y);
-
+  vertex_position.SetY(vertex_position.Y() - NINJA_POS_Y - NINJA_ECC_POS_Y);
   Int_t top_id, side_id;
 
   if ( std::fabs(vertex_position.X() + NINJA_ECC_GAP_X) < 0.5 * NINJA_DESIC_WIDTH )

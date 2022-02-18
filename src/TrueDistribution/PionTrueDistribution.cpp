@@ -18,6 +18,8 @@
 #include <TH2D.h>
 #include <TMath.h>
 
+#include "HistogramStyle.hpp"
+
 namespace logging = boost::log;
 namespace fs = boost::filesystem;
 
@@ -55,8 +57,6 @@ int main (int argc, char *argv[]) {
 
       auto it_event = input_spill_summary.BeginTrueEvent();
       const auto *event = it_event.Next(); // get true event summary
-      const Int_t interaction_type = event->GetInteractionType();
-      if (interaction_type > 30) continue; // only CC events
       const Double_t norm = event->GetNormalization();
 
       auto &primary_vertex_summary = event->GetPrimaryVertex();
@@ -67,6 +67,9 @@ int main (int argc, char *argv[]) {
 
       const Double_t total_cross_section = primary_vertex_summary.GetTotalCrossSection();
       const Double_t weight = norm * total_cross_section * 1.e-38 * 6.02e23;
+      const Int_t mode = GetNinjaModeId(primary_vertex_summary.GetInteractionType());
+      if ( mode < 0 ) continue; // interaction type not set
+      if ( mode == 5 ) continue; // NC
 
       auto it_track = primary_vertex_summary.BeginTrack();
       while (const auto *track = it_track.Next()) {

@@ -60,8 +60,7 @@ int main (int argc, char *argv[]) {
 
     B2Reader reader(input_file);
 
-    std::vector<Momentum_recon::Event_information> ev_vec;
-    Momentum_recon::Event_information ev;
+    std::ofstream ofs(argv[2], std::ios::binary);
     Momentum_recon::Mom_chain mom_chain;
     Momentum_recon::Mom_basetrack mom_basetrack;
     std::pair<Momentum_recon::Mom_basetrack, Momentum_recon::Mom_basetrack> mom_basetrack_pair;
@@ -176,39 +175,38 @@ int main (int argc, char *argv[]) {
 
       BOOST_LOG_TRIVIAL(debug) << "Fonnd correctly connected muon track : " << reader.GetEntryNumber();
 
-      if ( emulsions_in_one_ecc.size() < 2 ) continue;
-
-      ev.chains.clear();
-      ev.true_chains.clear();
-      ev.chains.reserve(1);
-      ev.true_chains.reserve(1);
-      ev.groupid = reader.GetEntryNumber();
-      ev.tracker_track_id = muon_track_id;
-      ev.entry_in_daily_file = reader.GetEntryNumber();
-      ev.vertex_pl = emulsions_in_one_ecc.back()->GetPlate() + 1;
-      ev.ecc_id = emulsions_in_one_ecc.back()->GetEcc() + 1;
-
       std::sort(emulsions_in_one_ecc.begin(), emulsions_in_one_ecc.end(), ComparePlate);
 
-      // true chain
+      int num_base = emulsions_in_one_ecc.size();
+      int num_link = num_base - 1;
+
+      if ( num_base < 2 ) continue;
+
       mom_chain.base.clear();
       mom_chain.base_pair.clear();
-      mom_chain.base.reserve(emulsions_in_one_ecc.size());
-      mom_chain.base_pair.reserve(emulsions_in_one_ecc.size() - 1);
 
-      mom_chain.chainid = emulsions_in_one_ecc.at(0)->GetParentTrackId();
-      mom_chain.stop_flag = 0;
+      mom_chain.base.reserve(num_base);
+      mom_chain.base_pair.reserve(num_link);
+
+      mom_chain.groupid = emulsions_in_one_ecc.at(0)->GetParentTrackId();
+      mom_chain.chainid = -1;
+      mom_chain.unixtime = -1;
+      mom_chain.tracker_track_id = emulsions_in_one_ecc.at(0)->GetMuonTrackId();
+      mom_chain.entry_in_daily_file = reader.GetEntryNumber();
+      mom_chain.stop_flag = 1;
       mom_chain.particle_flag = emulsions_in_one_ecc.at(0)->GetParentTrack().GetParticlePdg();
-      mom_chain.direction = 1;
-      mom_chain.bm_range_mom = emulsions_in_one_ecc.at(0)->GetParentTrack().GetInitialAbsoluteMomentum().GetValue();
 
-      Double_t downstream_position_z = 0;     
+      mom_chain.bm_range_mom = emulsions_in_one_ecc.at(0)->GetParentTrack().GetInitialAbsoluteMomentum().GetValue();
+      mom_chain.bm_curvature_mom = norm * total_cross_section * 1e-38 * 6.02e23;
+
+      Double_t downstream_position_z = 0.;
 
       for ( auto emulsion : emulsions_in_one_ecc ) {
 	TVector3 position = emulsion->GetAbsolutePosition().GetValue();
 	CalcPosInEccCoordinate(position, iss_ecc, kTRUE);
+	SmearPosition(position);
 	TVector3 tangent = emulsion->GetTangent().GetValue();
-	tangent = (1. / tangent.Z()) * tangent;
+	SmearTangentVector(tangent);
 
 	mom_basetrack.pl = emulsion->GetPlate() + 1;
 	mom_basetrack.rawid = emulsion->GetEmulsionTrackId();
@@ -246,78 +244,21 @@ int main (int argc, char *argv[]) {
 	}
 
 	downstream_position_z = position.Z();
-	
+
       }
-      ev.true_chains.push_back(mom_chain);
-
-      // recon chains
-      mom_chain.base.clear();
-      mom_chain.base_pair.clear();
-      mom_chain.base.reserve(emulsions_in_one_ecc.size());
-      mom_chain.base_pair.reserve(emulsions_in_one_ecc.size() - 1);
-
-      mom_chain.chainid = emulsions_in_one_ecc.at(0)->GetParentTrackId();
-      mom_chain.stop_flag = 0;
-      mom_chain.particle_flag = emulsions_in_one_ecc.at(0)->GetParentTrack().GetParticlePdg();
-      mom_chain.direction = 1;
-      mom_chain.bm_range_mom = emulsions_in_one_ecc.at(0)->GetParentTrack().GetInitialAbsoluteMomentum().GetValue();
-
-      downstream_position_z = 0;     
-
-      for ( auto emulsion : emulsions_in_one_ecc ) {
-	TVector3 position = emulsion->GetAbsolutePosition().GetValue();
-	CalcPosInEccCoordinate(position, iss_ecc, kTRUE);
-	SmearPosition(position);
-	TVector3 tangent = emulsion->GetTangent().GetValue();
-	SmearTangentVector(tangent);
-	tangent = (1. / tangent.Z()) * tangent;
-
-	mom_basetrack.pl = emulsion->GetPlate() + 1;
-	mom_basetrack.rawid = emulsion->GetEmulsionTrackId();
-	mom_basetrack.x = position.X();
-	mom_basetrack.y = position.Y();
-	mom_basetrack.z = position.Z();
-	mom_basetrack.ax = tangent.X();
-	mom_basetrack.ay = tangent.Y();
-	mom_basetrack.m[0].zone = 0;
-	mom_basetrack.m[0].view = 0;
-	mom_basetrack.m[0].imager = 0;
-	mom_basetrack.m[0].ph = std::min((int)((emulsion->GetEdepSum() + emulsion->GetEdepDiff()) * 1000 / 2), 9999);
-	mom_basetrack.m[0].pixelnum = 0;
-	mom_basetrack.m[0].hitnum = 0;
-	mom_basetrack.m[1].zone = 0;
-	mom_basetrack.m[1].view = 0;
-	mom_basetrack.m[1].imager = 0;
-	mom_basetrack.m[1].ph = std::min((int)((emulsion->GetEdepSum() - emulsion->GetEdepDiff()) * 1000 / 2), 9999);
-	mom_basetrack.m[1].pixelnum = 0;
-	mom_basetrack.m[1].hitnum = 0;
-
-	mom_chain.base.push_back(mom_basetrack);
-	
-	mom_basetrack_pair.first = mom_basetrack_pair.second;
-	mom_basetrack_pair.first.z = 0.;
-	mom_basetrack_pair.second.pl = emulsion->GetPlate() + 1;
-	mom_basetrack_pair.second.rawid = emulsion->GetEmulsionTrackId();
-	mom_basetrack_pair.second.x = position.X();
-	mom_basetrack_pair.second.y = position.Y();
-	mom_basetrack_pair.second.z = position.Z() - downstream_position_z;
-	mom_basetrack_pair.second.ax = tangent.X();
-	mom_basetrack_pair.second.ay = tangent.Y();
-	if ( emulsion != emulsions_in_one_ecc.front() ) {
-	  mom_chain.base_pair.push_back(mom_basetrack_pair);	
-	}
-
-	downstream_position_z = position.Z();
-	
+      
+      Momentum_recon::WriteMomChainHeader(ofs, mom_chain);
+      for ( int ibase = 0; ibase < num_base; ibase++ ) {
+	ofs.write((char*)& mom_chain.base.at(ibase), sizeof(Momentum_recon::Mom_basetrack));
       }
-
-      ev.chains.push_back(mom_chain);
-
-      ev_vec.push_back(ev);
+      for ( int ilink = 0; ilink < num_link; ilink++ ) {
+	ofs.write((char*)& mom_chain.base_pair.at(ilink).first, sizeof(Momentum_recon::Mom_basetrack));
+	ofs.write((char*)& mom_chain.base_pair.at(ilink).second, sizeof(Momentum_recon::Mom_basetrack));
+      }
 
     }
 
-    Momentum_recon::WriteEventInformationBin((std::string)argv[2], ev_vec);
+    ofs.close();
 
   } catch (const std::runtime_error &error) {
     BOOST_LOG_TRIVIAL(fatal) << "Runtime error :" << error.what();

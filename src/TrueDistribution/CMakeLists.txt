@@ -5,10 +5,8 @@ add_executable(MuonTrueDistribution
 	)
 
 target_link_libraries(MuonTrueDistribution
-	${ROOT_LIBRARIES}
-	${Geant4_LIBRARIES}
-	${Boost_LIBRARIES}
-	${B2MC_LIBRARY}
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
 )
 
 add_executable(ProtonTrueDistribution
@@ -16,10 +14,8 @@ add_executable(ProtonTrueDistribution
 	)
 
 target_link_libraries(ProtonTrueDistribution
-	${ROOT_LIBRARIES}
-	${Geant4_LIBRARIES}
-	${Boost_LIBRARIES}
-	${B2MC_LIBRARY}
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
 )
 
 add_executable(PionTrueDistribution
@@ -27,10 +23,8 @@ add_executable(PionTrueDistribution
 	)
 
 target_link_libraries(PionTrueDistribution
-	${ROOT_LIBRARIES}
-	${Geant4_LIBRARIES}
-	${Boost_LIBRARIES}
-	${B2MC_LIBRARY}
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
 )
 
 # install the execute in the bin folder

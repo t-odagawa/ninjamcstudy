@@ -1,0 +1,69 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <McsClass.hpp>
+
+#include "MomchMerge.hpp"
+
+int main (int argc, char* argv[]) {
+
+  if ( argc != 3 ) {
+    std::cerr << "Usage : " << argv[0]
+	      << " <input file name> <output file name>" << std::endl;
+    std::exit(1);
+  }
+  std::string input_dir_name = argv[1];
+  std::string output_file_name = argv[2];
+  std::vector<Momentum_recon::Mom_chain> momch_vec;
+  for ( int i = 1; i < 1000; i++ ) {
+    // std::cout << "File : " << i << "\r";
+    std::cout << "File : " << i << std::endl;
+    ReadMergeMomch(input_dir_name, i, momch_vec);
+  }
+  std::cout << std::endl;
+
+  Momentum_recon::WriteMomChain(output_file_name, momch_vec);
+
+  std::exit(0);
+
+}
+
+void ReadMergeMomch(std::string input_dir_name, int i, std::vector<Momentum_recon::Mom_chain> &momch_vec) {
+
+  std::stringstream ss_filename;
+  ss_filename << input_dir_name << i << ".momch";
+  std::cout << ss_filename.str() << std::endl;
+  std::ifstream ifs(ss_filename.str(), std::ios::binary);
+  if ( !ifs.is_open() ) return;
+  Momentum_recon::Mom_chain mom_chain;
+  Momentum_recon::Mom_basetrack basetrack;
+  std::pair<Momentum_recon::Mom_basetrack, Momentum_recon::Mom_basetrack> link;
+  int num_base = 0;
+  int num_link = 0;
+
+  while ( Momentum_recon::ReadMomChainHeader(ifs, mom_chain, num_base, num_link) ) {
+    mom_chain.base.clear();
+    mom_chain.base_pair.clear();
+    std::cout << num_base << " " << num_link << std::endl;
+    mom_chain.base.reserve(num_base);
+    mom_chain.base_pair.reserve(num_link);
+
+    for ( int j = 0; j < num_base; j++ ) {
+      ifs.read((char*)& basetrack, sizeof(Momentum_recon::Mom_basetrack));
+      mom_chain.base.push_back(basetrack);
+    }
+    for ( int j = 0; j < num_link; j++ ) {
+      ifs.read((char*)& link.first, sizeof(Momentum_recon::Mom_basetrack));
+      ifs.read((char*)& link.second, sizeof(Momentum_recon::Mom_basetrack));
+      mom_chain.base_pair.push_back(link);
+    }
+    mom_chain.groupid += i * 10000;
+    momch_vec.push_back(mom_chain);
+  }
+
+  return;
+}

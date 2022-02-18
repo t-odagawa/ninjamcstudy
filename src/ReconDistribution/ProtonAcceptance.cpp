@@ -29,11 +29,9 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-namespace logging = boost::log;
+#include "HistogramStyle.hpp"
 
-const TString modename[5] = {"CCQE", "2p2h", "CC 1#pi", "CC Multi#pi", "CC Other", "NC"};
-const Int_t color[5] = {424, 624, 394, 395, 401, 408};
-const Int_t style[5] = {1001, 1001, 3006, 3005, 1001, 1001};
+namespace logging = boost::log;
 
 int main (int argc, char *argv[]) {
 
