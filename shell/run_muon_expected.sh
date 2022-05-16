@@ -10,8 +10,11 @@ b2datafile=${b2datadir}/ninja_mc_${material}_track_$1.root
 
 matchdir=${HOME}/data/mc_data/${subrun}/trackmatch
 matchfile=${matchdir}/ninja_mc_${material}_ninjamatch_$1.root
+matchb2file=${matchdir}/ninja_mc_${material}_ninjamatch_b2_$1.root
 
 outputdir=${HOME}/data/plots/${subrun}/muon_expected
-outputfile=${outputdir}/muon_expected_distribution_$1.root
+#outputfile=${outputdir}/muon_expected_distribution_$1.root
+outputfile=${outputdir}/true_tangent_distribution_$1.root
 
-./src/MatchAcceptance/MuonExpectedDistribution ${b2datafile} ${matchfile} ${outputfile}
+#./src/MatchAcceptance/MuonExpectedDistribution ${b2datafile} ${matchfile} ${outputfile}
+./src/MatchAcceptance/TangentDistributionPaper ${matchb2file} ${outputfile}

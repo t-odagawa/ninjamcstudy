@@ -12,5 +12,15 @@ target_link_libraries(MuonExpectedDistribution
 	${NTBM_LIBRARY}
 )
 
-# install the execute in the bin folder
 install(TARGETS MuonExpectedDistribution DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+add_executable(TangentDistributionPaper
+	TangentDistributionPaper.cpp
+	)
+
+target_link_libraries(TangentDistributionPaper
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS TangentDistributionPaper DESTINATION "${CMAKE_INSTALL_BINDIR}")

@@ -8,6 +8,8 @@
 #include <B2SpillSummary.hh>
 #include <B2TrackSummary.hh>
 #include <B2EventSummary.hh>
+#include <B2ClusterSummary.hh>
+#include <B2HitSummary.hh>
 #include <B2VertexSummary.hh>
 #include <B2EmulsionSummary.hh>
 #include <B2Pdg.hh>
@@ -59,7 +61,8 @@ int main (int argc, char *argv[]) {
 
   logging::core::get()->set_filter
     (
-     logging::trivial::severity >= logging::trivial::info
+     // logging::trivial::severity >= logging::trivial::info
+     logging::trivial::severity >= logging::trivial::debug
      );
 
     if ( argc != 4 ) {
@@ -91,6 +94,8 @@ int main (int argc, char *argv[]) {
     TH1D *hist_muon_bm_deg = new TH1D("hist_muon_bm_deg", ";Baby MIND reconstructed angle (#theta_{#mu, BM}) [degree];Entries/2 deg", 90, 0, 180);
     TH2D *hist_muon_deg_bm_deg = new TH2D("hist_muon_deg_bm_deg",";Baby MIND reconstructed angle (#theta_{#mu, BM}) [degree];#theta_{#mu} [degree]",
 					  90, 180, 0, 90, 180, 0);
+    TH1D *hist_muon_tan_x = new TH1D("hist_muon_tan_x", ";Shifter angle (tan#theta_{#mu,x});Entries/0.04", 30,0,1.2);
+    TH1D *hist_muon_tan_y = new TH1D("hist_muon_tan_y", ";Shifter angle (tan#theta_{#mu,y});Entries/0.04", 30,0,1.2);
 
     while ( reader.ReadNextSpill() > 0 ) {
       nt_tree->GetEntry(nt_entry);
@@ -110,7 +115,11 @@ int main (int argc, char *argv[]) {
       Bool_t detect_muon = false;
       Double_t muon_mom = -1; 
       Double_t muon_ang = -1;
+      Double_t muon_tan_x = -1;
+      Double_t muon_tan_y = -1;
       Double_t muon_cos = -2;
+
+      std::vector<UInt_t> bm_hit_id = {};
 
       // Check if a muon is generated from the intreaction
       auto it_true_track = primary_vertex_summary.BeginTrack();
@@ -123,6 +132,15 @@ int main (int argc, char *argv[]) {
 	  TVector3 direction = track->GetInitialDirection().GetValue();
 	  muon_ang = TMath::ATan(TMath::Hypot(direction.X()/direction.Z(), direction.Y()/direction.Z())) * TMath::RadToDeg();
 	  muon_cos = TMath::Cos(muon_ang * TMath::DegToRad());
+
+	  auto it_cluster = track->BeginCluster();
+	  const auto *cluster = it_cluster.Next();
+	  auto it_hit = cluster->BeginHit();
+	  while ( const auto *hit = it_hit.Next() ) {
+	    if ( hit->GetDetectorId() == B2Detector::kBabyMind )
+	      bm_hit_id.push_back(hit->GetHitId());
+	  }
+
 	  break;
 	}
       }
@@ -154,6 +172,8 @@ int main (int argc, char *argv[]) {
 		  (emulsion->GetPlate() == 15)) {
 	  tss_position = emulsion->GetAbsolutePosition().GetValue();
 	  tss_tangent = emulsion->GetAbsolutePosition().GetValue();
+	  muon_tan_x = std::fabs(tss_tangent.X());
+	  muon_tan_y = std::fabs(tss_tangent.Y());
 	}
 	else continue;
       }
@@ -176,41 +196,54 @@ int main (int argc, char *argv[]) {
 	   extrapolated_position.X() < -600. ||
 	   extrapolated_position.X() > 448. ) continue;
 
+      BOOST_LOG_TRIVIAL(debug) << "Target muon!";
+
       // Check if Baby MIND has track made by the muon
-      if (detect_muon) {
+
+      if ( detect_muon ) {
 	Bool_t detect_muon_bm = false;
-	std::vector<const B2TrackSummary*> recon_track_vector;
-	recon_track_vector.reserve(input_spill_summary.GetNumReconTracks());
-	auto it_recon_track = input_spill_summary.BeginReconTrack();
-	while ( const auto *recon_track = it_recon_track.Next() ) {
-	  if ( recon_track->GetTrackType() == B2TrackType::kPrimaryTrack ) {
-	    if ( recon_track->GetPrimaryTrackType() == B2PrimaryTrackType::kBabyMind3DTrack ) {
-	      recon_track_vector.push_back(recon_track);
-	    }
-	    else if ( recon_track->GetPrimaryTrackType() == B2PrimaryTrackType::kMatchingTrack &&
-		      recon_track->HasDetector(B2Detector::kBabyMind) ) {
-              if ( recon_track->HasDetector(B2Detector::kProtonModule) ||
-		   recon_track->HasDetector(B2Detector::kWagasciUpstream) ||
-		   recon_track->HasDetector(B2Detector::kWagasciDownstream) ) {
-		recon_track_vector.push_back(recon_track);
-              }
+	std::vector<const B2TrackSummary* > track_vector;
+	auto it_recon_vertex = input_spill_summary.BeginReconVertex();
+	int num_bm_hit_in_recon_track = 0;
+	while ( auto *vertex = it_recon_vertex.Next() ) {
+	  auto it_outgoing_track = vertex->BeginTrack();
+	  while ( auto *track = it_outgoing_track.Next() ) {
+	    if ( track->GetTrackType() == B2TrackType::kPrimaryTrack ) {
+	      if ( track->GetPrimaryTrackType() == B2PrimaryTrackType::kBabyMind3DTrack ) {
+		track_vector.push_back(track);
+	      }
+	      else if ( track->GetPrimaryTrackType() == B2PrimaryTrackType::kMatchingTrack &&
+			track->HasDetector(B2Detector::kBabyMind) ) {
+		if ( track->HasDetector(B2Detector::kProtonModule) ||
+		     track->HasDetector(B2Detector::kWagasciUpstream) ||
+		     track->HasDetector(B2Detector::kWagasciDownstream) ) {
+		  track_vector.push_back(track);
+		}
+	      }
 	    }
 	  }
 	}
 
-	Int_t matched_babymind_track_id = -1;
-	for ( int i = 0; i < recon_track_vector.size(); i++ ) {
-	  if ( recon_track_vector.at(i)->GetParticlePdg() == PDG_t::kMuonMinus ) {
-	    detect_muon_bm = true;
-	    matched_babymind_track_id = i;
-	  }	    
+	for ( auto track : track_vector ) {
+	  auto it_hit = track->BeginHit();
+	  while ( const auto hit = it_hit.Next() ) {
+	    if ( hit->GetDetectorId() == B2Detector::kBabyMind ) {
+	      if ( std::find(bm_hit_id.begin(), bm_hit_id.end(), hit->GetHitId()) != bm_hit_id.end() ) {
+		num_bm_hit_in_recon_track++;
+	      }
+	    }
+	  }
 	}
+
+	if ( num_bm_hit_in_recon_track > 4 ) detect_muon_bm = true;
 
 	// Search corresponding muon track from NTBMSummary and get 3d pre-reconstructed angle
 	if ( detect_muon_bm ) {
-	  std::vector<Double_t> tangent = ntbm->GetBabyMindTangent(matched_babymind_track_id);
-	  Double_t theta_bm = TMath::ATan(TMath::Hypot(tangent.at(0), tangent.at(1))) * TMath::RadToDeg();
-
+	  BOOST_LOG_TRIVIAL(debug) << "Baby MIND detects muon!";
+	  // std::vector<Double_t> tangent = ntbm->GetBabyMindTangent(matched_babymind_track_id);
+	  // Double_t theta_bm = TMath::ATan(TMath::Hypot(tangent.at(0), tangent.at(1))) * TMath::RadToDeg();
+	  Double_t theta_bm = 0;
+	  std::cout << muon_tan_x << ", " << muon_tan_y << std::endl;
 	  hist_muon_mom->Fill(muon_mom, weight);
 	  hist_muon_cos->Fill(muon_cos, weight);
 	  hist_muon_deg->Fill(muon_ang, weight);
@@ -218,6 +251,8 @@ int main (int argc, char *argv[]) {
 	  hist_muon_mom_deg->Fill(muon_mom, muon_ang, weight);
 	  hist_muon_bm_deg->Fill(theta_bm, weight);
 	  hist_muon_deg_bm_deg->Fill(muon_ang, theta_bm, weight);
+	  hist_muon_tan_x->Fill(muon_tan_x, weight);
+	  hist_muon_tan_y->Fill(muon_tan_y, weight);
 	}
       }
   
@@ -232,6 +267,8 @@ int main (int argc, char *argv[]) {
     hist_muon_mom_deg->Write();
     hist_muon_bm_deg->Write();
     hist_muon_deg_bm_deg->Write();
+    hist_muon_tan_x->Write();
+    hist_muon_tan_y->Write();
     ofile->Close();
 
   } catch (const std::runtime_error &error) {

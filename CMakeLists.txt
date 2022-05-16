@@ -115,6 +115,14 @@ if (Mcs_FOUND)
    include_directories("${MCS_INCLUDE_DIR}")
 endif()
 
+# Connection library
+find_package(Connection REQUIRED)
+if (Connection_FOUND)
+   message(STATUS "Connection library -- found")
+   message(STATUS "Connection library include dir : ${CONNECTION_INCLUDE_DIR}")
+   include_directories("${CONNECTION_INCLUDE_DIR}")
+endif()
+
 ################ Libraries ################
 
 set(NINJAMC_LIB_PATH ${CMAKE_SOURCE_DIR}/lib)
@@ -129,6 +137,7 @@ if (NOT APPLE)
             ${B2MC_LIBRARY}
 	    ${NTBM_LIBRARY}
 	    ${MCS_LIBRARY}
+	    ${CONNECTION_LIBRARY}
             )
 else ()
     list(APPEND NINJA_MCSTUDY_LIBRARIES
@@ -141,6 +150,7 @@ else ()
             ${B2MC_LIBRARY}
 	    ${NTBM_LIBRARY}
 	    ${MCS_LIBRARY}
+	    ${CONNECTION_LIBRARY}
             )
 endif ()
 
@@ -172,7 +182,7 @@ endif ()
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY} ${MCS_LIBRARY})
+set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY} ${MCS_LIBRARY} ${CONNECTION_LIBRARY})
 
 ################ Sub Directories ################
 
@@ -182,3 +192,4 @@ add_subdirectory(src/TrueDistribution/Mode)
 add_subdirectory(src/MatchAcceptance)
 add_subdirectory(src/EventSelection)
 add_subdirectory(src/Kink)
+add_subdirectory(src/ReconDistribution)
