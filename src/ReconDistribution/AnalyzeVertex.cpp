@@ -1,4 +1,6 @@
+#include <iostream>
 #include <vector>
+#include <cmath>
 #include <string>
 
 #include <boost/log/core.hpp>
@@ -39,15 +41,15 @@ void AnalyzeVertex(std::string b2filename,
   TFile *outputfile = new TFile((TString)outputfilename, "recreate");
   BOOST_LOG_TRIVIAL(info) << "Output filename : " << outputfilename;
   
-  TH1D *hist_recon_vertex_x = new TH1D("hist_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 100, 0., 250.e3);
-  TH1D *hist_recon_vertex_y = new TH1D("hist_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 100, 0., 250.e3);
-  TH1D *hist_recon_vertex_z = new TH1D("hist_recon_vertex_z", "Reconstructed depth;z [#mum];Entries", 100, -300.e3, 0.);
+  TH1D *hist_recon_vertex_x = new TH1D("hist_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 25, 0., 250.e3);
+  TH1D *hist_recon_vertex_y = new TH1D("hist_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 25, 0., 250.e3);
+  TH1D *hist_recon_vertex_z = new TH1D("hist_recon_vertex_z", "Reconstructed depth;z [#mum];Entries", 25, -250.e3, 0.);
   TH2D *hist_recon_vertex_xy = new TH2D("hist_recon_vertex_xy", "Reconstructed film position; x [#mum];y [#mum]",
-					100, 0., 250.e3, 100, 0., 250.e3);
+					25, 0., 250.e3, 25, 0., 250.e3);
   TH2D *hist_recon_vertex_xz = new TH2D("hist_recon_vertex_xz", "Reconstructed film position; z [#mum];x [#mum]",
-					100, -300.e3, 0., 100, 0., 250.e3);
+					25, -250.e3, 0., 25, 0., 250.e3);
   TH2D *hist_recon_vertex_yz = new TH2D("hist_recon_vertex_yz", "Reconstructed film position; z [#mum];y [#mum]",
-					100, -300.e3, 0., 100, 0., 250.e3);
+					25, -250.e3, 0., 25, 0., 250.e3);
 
 
   TH1D *hist_resolution_x = new TH1D("hist_resolution_x", "Horizontal positional resolution;#Deltax [#mum];Entries", 100, -500, 500);
@@ -70,8 +72,10 @@ void AnalyzeVertex(std::string b2filename,
   // chamber reconstructed insuccess  
   TH2D *hist_ecc_recon_true = new TH2D("hist_ecc_recon_true", "Reconstructed ECC;True ECC;Reconstructed ECC",
 				       9, 0.5, 9.5, 9, 0.5, 9.5);
+  TH2D *hist_recon_vertex_xy_pene = new TH2D("hist_recon_vertex_xy_pene", "Reconstructed film position; x [#mum];y [#mum]",
+					25, 0., 250.e3, 25, 0., 250.e3);  
   TH2D *hist_recon_vertex_xy_side = new TH2D("hist_recon_vertex_xy_side", "Reconstructed film position; x [#mum];y [#mum]",
-					100, 0., 250.e3, 100, 0., 250.e3);
+					25, 0., 250.e3, 25, 0., 250.e3);
 
   for ( auto ev : ev_vec ) {
 
@@ -87,22 +91,23 @@ void AnalyzeVertex(std::string b2filename,
 
     if ( ecc_id == 0 ) continue;
 
-    hist_recon_vertex_x->Fill(ev.recon_vertex_position[0], ev.weight);
-    hist_recon_vertex_y->Fill(ev.recon_vertex_position[1], ev.weight);
-    hist_recon_vertex_z->Fill(ev.recon_vertex_position[2], ev.weight);
-    hist_recon_vertex_xy->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
-    hist_recon_vertex_xz->Fill(ev.recon_vertex_position[2], ev.recon_vertex_position[0], ev.weight);
-    hist_recon_vertex_yz->Fill(ev.recon_vertex_position[2], ev.recon_vertex_position[1], ev.weight);
+    if ( ev.vertex_material >= 0 ) { // stop identified only
+      hist_recon_vertex_x->Fill(ev.recon_vertex_position[0], ev.weight);
+      hist_recon_vertex_y->Fill(ev.recon_vertex_position[1], ev.weight);
+      hist_recon_vertex_z->Fill(ev.recon_vertex_position[2], ev.weight);
+      hist_recon_vertex_xy->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
+      hist_recon_vertex_xz->Fill(ev.recon_vertex_position[2], ev.recon_vertex_position[0], ev.weight);
+      hist_recon_vertex_yz->Fill(ev.recon_vertex_position[2], ev.recon_vertex_position[1], ev.weight);
 
-    hist_resolution_x->Fill(ev.recon_vertex_position[0] - ev.true_vertex_position[0],
-			    ev.weight);
-    hist_resolution_y->Fill(ev.recon_vertex_position[1] - ev.true_vertex_position[1],
-			    ev.weight);
-    hist_resolution_z->Fill(ev.recon_vertex_position[2] - ev.true_vertex_position[2],
-			    ev.weight);
-
-    hist_target_material->Fill(ev.vertex_material, ev.weight);
-
+      hist_resolution_x->Fill(ev.recon_vertex_position[0] - ev.true_vertex_position[0],
+			      ev.weight);
+      hist_resolution_y->Fill(ev.recon_vertex_position[1] - ev.true_vertex_position[1],
+			      ev.weight);
+      hist_resolution_z->Fill(ev.recon_vertex_position[2] - ev.true_vertex_position[2],
+			      ev.weight);
+      
+      hist_target_material->Fill(ev.vertex_material, ev.weight);
+    }
 
     if ( true_ecc_id == ecc_id ) {
       hist_vertex_pl_diff->Fill(vertex_pl - true_vertex_pl, ev.weight);
@@ -110,8 +115,10 @@ void AnalyzeVertex(std::string b2filename,
     }
     else {
       hist_ecc_recon_true->Fill(true_ecc_id, ecc_id, ev.weight);
-      if ( ev.vertex_pl < 130 )
-	hist_recon_vertex_xy_side->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
+      if ( ev.vertex_pl > 131 )
+	hist_recon_vertex_xy_pene->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
+      else
+	hist_recon_vertex_xy_side->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);      
     }
 
 
@@ -131,6 +138,7 @@ void AnalyzeVertex(std::string b2filename,
   hist_vertex_pl_diff->Write();
   hist_vertex_pl_recon_true->Write();
   hist_ecc_recon_true->Write();
+  hist_recon_vertex_xy_pene->Write();
   hist_recon_vertex_xy_side->Write();
   outputfile->Close();
   
