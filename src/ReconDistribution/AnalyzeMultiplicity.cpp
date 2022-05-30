@@ -56,13 +56,21 @@ void AnalyzeMultiplicity(std::string b2filename,
 
   TH1D *hist_water_mode_multi[num_ninja_mode];
   TH1D *hist_iron_mode_multi[num_ninja_mode];
+  TH1D *hist_water_mode_proton_multi[num_ninja_mode];
+  TH1D *hist_water_mode_pion_multi[num_ninja_mode];
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_water_mode_multi[i] = new TH1D(Form("hist_water_mode_multi_%d", i), "", 10, 0.5, 10.5);
     hist_iron_mode_multi[i] = new TH1D(Form("hist_iron_mode_multi_%d", i), "", 10, 0.5, 10.5);
+    hist_water_mode_proton_multi[i] = new TH1D(Form("hist_water_mode_proton_multi_%d", i),"", 10, 0.5, 10.5);
+    hist_water_mode_pion_multi[i] = new TH1D(Form("hist_water_mode_pion_multi_%d", i),"", 10, 0.5, 10.5);
     hist_water_mode_multi[i]->SetFillColor(mode_color[i]);
     hist_iron_mode_multi[i]->SetFillColor(mode_color[i]);
+    hist_water_mode_proton_multi[i]->SetFillColor(mode_color[i]);
+    hist_water_mode_pion_multi[i]->SetFillColor(mode_color[i]);
     hist_water_mode_multi[i]->SetFillStyle(mode_style[i]);
     hist_iron_mode_multi[i]->SetFillStyle(mode_style[i]);
+    hist_water_mode_proton_multi[i]->SetFillStyle(mode_style[i]);
+    hist_water_mode_pion_multi[i]->SetFillStyle(mode_style[i]);
   }
 
   for ( auto ev : ev_vec ) {
@@ -81,6 +89,14 @@ void AnalyzeMultiplicity(std::string b2filename,
       if ( ev.vertex_material == B2Material::kWater ) {
 	hist_water_total_multi->Fill(ev.chains.size(), ev.weight);
 	hist_water_mode_multi[mode_id]->Fill(ev.chains.size(), ev.weight);
+	int num_proton_water = 0;
+	int num_pion_water = 0;
+	for ( auto chain : ev.chains ) {
+	  if ( chain.particle_flag == 2212 ) num_proton_water++;
+	  else if ( std::fabs(chain.particle_flag) == 211 ) num_pion_water++;	
+	}
+	hist_water_mode_proton_multi[mode_id]->Fill(num_proton_water, ev.weight);
+	hist_water_mode_pion_multi[mode_id]->Fill(num_pion_water, ev.weight);
       }
       else if ( ev.vertex_material == B2Material::kIron ) {
 	hist_iron_total_multi->Fill(ev.chains.size(), ev.weight);
@@ -98,6 +114,8 @@ void AnalyzeMultiplicity(std::string b2filename,
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_water_mode_multi[i]->Write();
     hist_iron_mode_multi[i]->Write();
+    hist_water_mode_proton_multi[i]->Write();
+    hist_water_mode_pion_multi[i]->Write();
   }
   outputfile->Close();
   

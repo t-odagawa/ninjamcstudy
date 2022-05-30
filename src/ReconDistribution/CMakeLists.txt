@@ -7,6 +7,10 @@ add_executable(MomchDraw
 	AnalyzeMultiplicity.cpp
 	AnalyzeVertex.hpp
 	AnalyzeVertex.cpp
+	AnalyzeMomentum.hpp
+	AnalyzeMomentum.cpp
+	AnalyzePid.hpp
+	AnalyzePid.cpp
 	)
 
 target_link_libraries(MomchDraw
