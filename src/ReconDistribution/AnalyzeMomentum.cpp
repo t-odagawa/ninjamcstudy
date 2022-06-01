@@ -44,14 +44,63 @@ void AnalyzeMomentum(std::string b2filename,
   TFile *outputfile = new TFile((TString)outputfilename, "recreate");
   BOOST_LOG_TRIVIAL(info) << "Output filename : " << outputfilename;
 
-  TH1D *hist_muon_mom = new TH1D("hist_muon_mom", "Muon reconstructed momentum;p_{#mu};Entries", 50, 0., 1500.);
-  TH2D *hist_muon_mom_recon_true = new TH2D("hist_muon_mom_recon_true", "Muon momentum;p_{#mu, true};p_{#mu, recon}", 15, 0., 1500., 15, 0., 1500.);
+  TH1D *hist_muon_mom = new TH1D("hist_muon_mom",
+				 "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
+				 50, 0., 1500.);
+  TH2D *hist_muon_mom_recon_true = new TH2D("hist_muon_mom_recon_true",
+					    "Muon momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
+					    15, 0., 1500., 15, 0., 1500.);
+  
+  TH1D *hist_pion_mom = new TH1D("hist_pion_mom",
+				 "Pion reconstructed momentum;p_{#pi} [MeV/c];Entries",
+				 50, 0., 1500.);
+  TH1D *hist_pion_mom_mcs = new TH1D("hist_pion_mom_mcs",
+				     "Pion MCS reconstructed momentum;p_{#pi, MCS} [MeV/c];Entries",
+				     50, 0., 1500.);
+  TH1D *hist_pion_mom_range = new TH1D("hist_pion_mom_range",
+				       "Pion range reconstructed momentum;p_{#pi, range} [MeV/c];Entries",
+				       50, 0., 1500.);
+  TH1D *hist_proton_mom = new TH1D("hist_proton_mom",
+				   "Proton reconstructed momentum;p_{p} [MeV/c];Entries",
+				   50, 0., 1500.);
+  TH1D *hist_proton_mom_mcs = new TH1D("hist_proton_mom_mcs",
+				       "Proton MCS reconstructed momentum;p_{p, MCS} [MeV/c];Entries",
+				       50, 0., 1500.);
+  TH1D *hist_proton_mom_range = new TH1D("hist_proton_mom_range",
+					 "Proton range reconstructed momentum;p_{p, range} [MeV/c];Entries",
+					 50, 0., 1500.);
+  TH2D *hist_pion_mom_recon_true = new TH2D("hist_pion_mom_recon_true",
+					    "Pion momentum;p_{#pi, true} [MeV/c];p_{#pi, recon} [MeV/c]",
+					    50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_pion_mom_recon_true_mcs = new TH2D("hist_pion_mom_recon_true_mcs",
+						"Pion MCS momentum;p_{#pi, true} [MeV/c];p_{#pi, recon} [MeV/c]",
+						50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_pion_mom_recon_true_range = new TH2D("hist_pion_mom_recon_true_range",
+						  "Pion range momentum;p_{#pi, true} [MeV/c];p_{#pi, recon} [MeV/c]",
+						  50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_proton_mom_recon_true = new TH2D("hist_proton_mom_recon_true",
+					      "Proton momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+					      50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_proton_mom_recon_true_mcs = new TH2D("hist_proton_mom_recon_true_mcs",
+						  "Proton MCS momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+						  50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_proton_mom_recon_true_range = new TH2D("hist_proton_mom_recon_true_range",
+						    "Proton range momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+						    50, 0., 1500., 50, 0., 1500.);
 
   TH1D *hist_mode_muon_mom[num_ninja_mode];
+  TH1D *hist_mode_pion_mom[num_ninja_mode];
+  TH1D *hist_mode_proton_mom[num_ninja_mode];
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_mode_muon_mom[i] = new TH1D(Form("hist_muon_mom_%d", i), "", 15, 0., 1500.);
     hist_mode_muon_mom[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom[i]->SetFillStyle(mode_style[i]);
+    hist_mode_pion_mom[i] = new TH1D(Form("hist_pion_mom_%d", i), "", 50, 0., 1500.);
+    hist_mode_pion_mom[i]->SetFillColor(mode_color[i]);
+    hist_mode_pion_mom[i]->SetFillStyle(mode_style[i]);
+    hist_mode_proton_mom[i] = new TH1D(Form("hist_proton_mom_%d", i), "", 50, 0., 1500.);
+    hist_mode_proton_mom[i]->SetFillColor(mode_color[i]);
+    hist_mode_proton_mom[i]->SetFillStyle(mode_style[i]);
   }
 
   for ( auto ev : ev_vec ) {
@@ -72,11 +121,15 @@ void AnalyzeMomentum(std::string b2filename,
 	// search corresponding true chain
 	double true_momentum = -1;
 	for ( auto true_chain : ev.true_chains ) {
-	  if ( chain.chainid == true_chain.chainid )
+	  if ( chain.chainid == true_chain.chainid ) {
 	    true_momentum = true_chain.bm_range_mom;
+	    break;
+	  }
 	}
 
 	int particle_id = chain.particle_flag % 10000;
+	int true_particle_id = chain.particle_flag / 10000;
+	if ( particle_id != true_particle_id ) continue;
 	double recon_momentum = -1;
 	if ( particle_id == 13 ) {
 	  recon_momentum = chain.ecc_mcs_mom[0];
@@ -85,13 +138,35 @@ void AnalyzeMomentum(std::string b2filename,
 	  hist_mode_muon_mom[mode_id]->Fill(recon_momentum, ev.weight);
 	}
 	else if ( particle_id == 211 ) {
-	  recon_momentum = chain.bm_curvature_mom;
+	  if ( chain.stop_flag == 0 ) {
+	    recon_momentum = chain.bm_curvature_mom;
+	    hist_pion_mom_mcs->Fill(recon_momentum, ev.weight);
+	    hist_pion_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
+	  }
+	  else if ( chain.stop_flag == 2 ) {
+	    recon_momentum = chain.ecc_range_mom[0];
+	    hist_pion_mom_range->Fill(recon_momentum, ev.weight);
+	    hist_pion_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
+	  }
+	  hist_pion_mom->Fill(recon_momentum, ev.weight);
+	  hist_pion_mom_recon_true->Fill(true_momentum, recon_momentum, ev.weight);
+	  hist_mode_pion_mom[mode_id]->Fill(recon_momentum, ev.weight);
 	}
 	else if ( particle_id == 2212 ) {
-	  recon_momentum = chain.ecc_mcs_mom[1];
-	}
-
-	
+	  if ( chain.stop_flag == 0 ) {
+	    recon_momentum = chain.ecc_mcs_mom[1];
+	    hist_proton_mom_mcs->Fill(recon_momentum, ev.weight);
+	    hist_proton_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
+	  }
+	  else if ( chain.stop_flag == 2 ) {
+	    recon_momentum = chain.ecc_range_mom[1];
+	    hist_proton_mom_range->Fill(recon_momentum, ev.weight);
+	    hist_proton_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
+	  }
+	  hist_proton_mom->Fill(recon_momentum, ev.weight);
+	  hist_proton_mom_recon_true->Fill(true_momentum, recon_momentum, ev.weight);
+	  hist_mode_proton_mom[mode_id]->Fill(recon_momentum, ev.weight);
+	}	
       }
     }
 
@@ -100,8 +175,22 @@ void AnalyzeMomentum(std::string b2filename,
   outputfile->cd();
   hist_muon_mom->Write();
   hist_muon_mom_recon_true->Write();
+  hist_pion_mom->Write();
+  hist_pion_mom_mcs->Write();
+  hist_pion_mom_range->Write();
+  hist_pion_mom_recon_true->Write();
+  hist_pion_mom_recon_true_mcs->Write();
+  hist_pion_mom_recon_true_range->Write();
+  hist_proton_mom->Write();
+  hist_proton_mom_mcs->Write();
+  hist_proton_mom_range->Write();
+  hist_proton_mom_recon_true->Write();
+  hist_proton_mom_recon_true_mcs->Write();
+  hist_proton_mom_recon_true_range->Write();
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_mode_muon_mom[i]->Write();
+    hist_mode_pion_mom[i]->Write();
+    hist_mode_proton_mom[i]->Write();
   }
   outputfile->Close();
 

@@ -9,6 +9,8 @@ add_executable(MomchDraw
 	AnalyzeVertex.cpp
 	AnalyzeMomentum.hpp
 	AnalyzeMomentum.cpp
+	AnalyzeAngle.hpp
+	AnalyzeAngle.cpp
 	AnalyzePid.hpp
 	AnalyzePid.cpp
 	)

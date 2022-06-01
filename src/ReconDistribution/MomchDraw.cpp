@@ -9,6 +9,7 @@
 #include "AnalyzeMultiplicity.hpp"
 #include "AnalyzeVertex.hpp"
 #include "AnalyzeMomentum.hpp"
+#include "AnalyzeAngle.hpp"
 #include "AnalyzePid.hpp"
 
 namespace logging = boost::log;
@@ -47,8 +48,7 @@ int main (int argc, char *argv[]) {
     momchfilename_ss << "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/momch/momch_ecc"
 		     << eccid << "_" << fileid;
     if ( modeid == 0 || modeid == 1 ) momchfilename_ss << ".momch";
-    else if ( modeid == 2 ) momchfilename_ss << "_addmcs.momch";
-    else if ( modeid == 4 ) momchfilename_ss << "_pid.momch";
+    else if ( modeid == 2 || modeid == 3 || modeid == 4 ) momchfilename_ss << "_pid.momch";
     std::string momchfilename = momchfilename_ss.str();
 
     // output file
@@ -68,13 +68,16 @@ int main (int argc, char *argv[]) {
       AnalyzeMomentum(b2filename, momchfilename, outputfilename);
       break;
     case 3 :
-      // AnalyzeAngle(b2filename, momchfilename, outputfilename);
+      AnalyzeAngle(b2filename, momchfilename, outputfilename);
       break;
     case 4 :
       AnalyzePid(b2filename, momchfilename, outputfilename);
       break;
+    case 5 :
+      // AnalyzeEfficiency(b2filename, momchfilename, outputfilename);
+      break;
     default :
-      throw std::runtime_error("Select one analyze mode : 0:Multiplicity, 1:Vertex, 2:Momentum, 3:Angle, 4:PID");
+      throw std::runtime_error("Select one analyze mode : 0:Multiplicity, 1:Vertex, 2:Momentum, 3:Angle, 4:PID, 5:Efficiency");
     }
 
   } catch (const std::runtime_error &error) {
