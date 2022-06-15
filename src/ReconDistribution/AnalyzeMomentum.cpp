@@ -87,6 +87,9 @@ void AnalyzeMomentum(std::string b2filename,
   TH2D *hist_proton_mom_recon_true_range = new TH2D("hist_proton_mom_recon_true_range",
 						    "Proton range momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
 						    50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_pbeta_muon_proton = new TH2D("hist_pbeta_muon_proton",
+					  "Reconstructed pbeta difference;p#beta_{#mu} [MeV/c];p#beta_{p} [MeV/c]",
+					  50, 0., 1500., 50, 0., 1500);
 
   TH1D *hist_mode_muon_mom[num_ninja_mode];
   TH1D *hist_mode_pion_mom[num_ninja_mode];
@@ -153,6 +156,11 @@ void AnalyzeMomentum(std::string b2filename,
 	  hist_mode_pion_mom[mode_id]->Fill(recon_momentum, ev.weight);
 	}
 	else if ( particle_id == 2212 ) {
+	  double pbeta_mu = chain.ecc_mcs_mom[0];
+	  pbeta_mu = pbeta_mu * pbeta_mu / std::sqrt(pbeta_mu * pbeta_mu + 105 * 105);
+	  double pbeta_p = chain.ecc_mcs_mom[1];
+	  pbeta_p = pbeta_p * pbeta_p / std::sqrt(pbeta_p * pbeta_p + 938 * 938);
+	  hist_pbeta_muon_proton->Fill(pbeta_mu, pbeta_p, ev.weight);
 	  if ( chain.stop_flag == 0 ) {
 	    recon_momentum = chain.ecc_mcs_mom[1];
 	    hist_proton_mom_mcs->Fill(recon_momentum, ev.weight);
@@ -187,6 +195,7 @@ void AnalyzeMomentum(std::string b2filename,
   hist_proton_mom_recon_true->Write();
   hist_proton_mom_recon_true_mcs->Write();
   hist_proton_mom_recon_true_range->Write();
+  hist_pbeta_muon_proton->Write();
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_mode_muon_mom[i]->Write();
     hist_mode_pion_mom[i]->Write();

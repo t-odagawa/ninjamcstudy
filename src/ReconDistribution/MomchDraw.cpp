@@ -76,8 +76,14 @@ int main (int argc, char *argv[]) {
     case 5 :
       // AnalyzeEfficiency(b2filename, momchfilename, outputfilename);
       break;
+    case 6 :
+      // Analyze0pi1p(b2filename, momchfilename, outputfilename);
+      break;
+    case 7 :
+      // Analyze0pi2p(b2filename, momchfilename, outputfilename);
+      break;
     default :
-      throw std::runtime_error("Select one analyze mode : 0:Multiplicity, 1:Vertex, 2:Momentum, 3:Angle, 4:PID, 5:Efficiency");
+      throw std::runtime_error("Select one analyze mode : 0:Multiplicity, 1:Vertex, 2:Momentum, 3:Angle, 4:PID, 5:Efficiency, 6:0pi1p, 7:0pi2p");
     }
 
   } catch (const std::runtime_error &error) {

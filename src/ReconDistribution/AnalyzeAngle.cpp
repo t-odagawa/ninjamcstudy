@@ -95,7 +95,7 @@ void AnalyzeAngle(std::string b2filename,
     hist_mode_proton_ang_cos[i]->SetFillStyle(mode_style[i]);
     hist_mode_proton_ang_deg[i] = new TH1D(Form("hist_proton_ang_deg_%d", i), "", 36, 0., 180.);
     hist_mode_proton_ang_deg[i]->SetFillColor(mode_color[i]);
-    hist_mode_proton_ang_deg[i]->SetFillStyle(mode_color[i]);
+    hist_mode_proton_ang_deg[i]->SetFillStyle(mode_style[i]);
   }
 
   for ( auto ev : ev_vec ) {

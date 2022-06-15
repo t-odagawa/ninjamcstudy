@@ -1,6 +1,6 @@
-message (STATUS "Kink study...")
+message (STATUS "MC distribution...")
 
-# Kink sandmuon
+# Distribution
 add_executable(MomchDraw
 	MomchDraw.cpp
 	AnalyzeMultiplicity.hpp
@@ -22,3 +22,14 @@ target_link_libraries(MomchDraw
 
 install(TARGETS MomchDraw DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+message (STATUS "Angle correction factor...")
+
+add_executable(AngleCorrection
+	AngleCorrection.cpp)
+
+target_link_libraries(AngleCorrection
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS AngleCorrection DESTINATION "${CMAKE_INSTALL_BINDIR}")

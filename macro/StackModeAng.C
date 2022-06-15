@@ -5,9 +5,9 @@ void StackModeAng() {
   TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode3.root";
   TFile *file = new TFile(filename, "read");
 
-  THStack hs_muon_ang = new THStack("hs_muon_ang", "Muon angle;#theta_{#mu} [deg];Entries");
-  THStack hs_pion_ang = new THStack("hs_pion_ang", "Pion angle;#theta_{#pi} [deg];Entries");
-  THStack hs_proton_ang = new THStack("hs_proton_ang", "Proton angle;#theta_{p} [deg];Entries");
+  THStack *hs_muon_ang = new THStack("hs_muon_ang", "Muon angle;#theta_{#mu} [deg];Entries");
+  THStack *hs_pion_ang = new THStack("hs_pion_ang", "Pion angle;#theta_{#pi} [deg];Entries");
+  THStack *hs_proton_ang = new THStack("hs_proton_ang", "Proton angle;#theta_{p} [deg];Entries");
 
   TLegend *l_muon_ang = new TLegend(0.6, 0.5, 0.85, 0.85);
   l_muon_ang->SetName("l_muon_ang");
