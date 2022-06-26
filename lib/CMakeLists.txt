@@ -3,6 +3,7 @@ add_library(NinjaMcStudy SHARED
 			 HistogramStyle.cpp
   			 MyFunction.hpp
   			 MyFunction.cpp
+			 DrawConst.hpp
 )
 
 target_include_directories(NinjaMcStudy PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

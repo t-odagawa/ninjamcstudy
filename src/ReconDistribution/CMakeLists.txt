@@ -13,6 +13,12 @@ add_executable(MomchDraw
 	AnalyzeAngle.cpp
 	AnalyzePid.hpp
 	AnalyzePid.cpp
+	AnalyzeEfficiency.hpp
+	AnalyzeEfficiency.cpp
+	Analyze0pi1p.hpp
+	Analyze0pi1p.cpp
+	Analyze0pi2p.hpp
+	Analyze0pi2p.cpp
 	)
 
 target_link_libraries(MomchDraw

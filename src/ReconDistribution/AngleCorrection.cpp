@@ -16,6 +16,8 @@
 #include <B2EmulsionSummary.hh>
 #include <B2Enum.hh>
 
+#include <McsFunction.hpp>
+
 namespace logging = boost::log;
 
 bool EmulsionCompare(const B2EmulsionSummary* lhs,
@@ -27,7 +29,8 @@ int main (int argc, char *argv[]) {
 
   logging::core::get()->set_filter
     (
-     logging::trivial::severity >= logging::trivial::info
+     // logging::trivial::severity >= logging::trivial::info
+     logging::trivial::severity >= logging::trivial::debug
      );
 
   if ( argc != 3 ) {
@@ -42,9 +45,9 @@ int main (int argc, char *argv[]) {
   std::string ofilename = argv[2];
   TFile *ofile = new TFile(ofilename.c_str(), "recreate");
   TH1D *hist_ax = new TH1D("hist_ax", "ECC rotation x;tan#theta_x;Entries",
-			   100, -1, 1);
+			   40, -1, 1);
   TH1D *hist_ay = new TH1D("hist_ay", "ECC rotation y;tan#theta_y;Entries",
-			   100, -1, 1);
+			   40, -1, 1);
 
   // TSpectrum *s = new TSpectrum();
 
@@ -56,12 +59,12 @@ int main (int argc, char *argv[]) {
     const auto *event = it_event.Next();
 
     auto &vertex = event->GetPrimaryVertex();
-    double weight = vertex.GetMcWeight();
+    double weight = vertex.GetTotalCrossSection() * event->GetNormalization();
 
     // true muon track を見つける
     int true_muon_track_id = -1;
-    auto it_true_track = spill_summary.BeginTrueTrack();    
-    while ( const auto *track = it_true_track.Next() ) {
+    auto it_outgoing_track = vertex.BeginTrack();
+    while ( const auto *track = it_outgoing_track.Next() ) {
       if ( track->GetParticlePdg() == 13 ) {
 	true_muon_track_id = track->GetTrackId();
 	break;
@@ -80,21 +83,48 @@ int main (int argc, char *argv[]) {
       emulsions.push_back(emulsion);
     }
 
+    if ( emulsions.empty() ) continue;
+    BOOST_LOG_TRIVIAL(debug) << "Entry :" << reader.GetEntryNumber();
+
     // std::sort(emulsions.begin(), emulsions.end(), EmulsionCompare);
 
     // muon chain が ECC penetrate であることを確認
     bool pene_flag = true;
+    BOOST_LOG_TRIVIAL(debug) << "Emulsion penetrates from " << emulsions.front()->GetPlate()
+			     << " to " << emulsions.back()->GetPlate();
     if ( emulsions.front()->GetPlate() < 130 ) pene_flag = false;
     if ( emulsions.back()->GetPlate() > 3 ) pene_flag = false;
 
     if ( !pene_flag ) continue;
 
+    // Baby MIND で muon が reconstruct されている
+    // shifter/tracker のマッチングや検出は sand muon に関しては角度依存性が
+    // 小さいと仮定する
+    if ( spill_summary.GetNumReconTracks() < 1 ) continue;
+    bool bm_detect_flag = false;
+
+    auto it_recon_vertex = spill_summary.BeginReconVertex();
+    while ( const auto *vertex = it_recon_vertex.Next() ) {
+      auto it_recon_track = vertex->BeginTrack();
+      while ( const auto *track = it_recon_track.Next() ) {
+	if ( track->HasDetector(B2Detector::kBabyMind) ) {
+	  bm_detect_flag = true;
+	  break;
+	}
+      }
+    }
+
+    if ( !bm_detect_flag ) continue;
+
     // plate3 での角度分布を作成
     // plate に垂直な方向を基準にスメア
     for ( auto emulsion : emulsions ) {
       if ( emulsion->GetPlate() == 3 ) {
-	hist_ax->Fill(emulsion->GetTangent().GetValue().X(), weight);
-	hist_ay->Fill(emulsion->GetTangent().GetValue().Y(), weight);
+	auto tangent = emulsion->GetTangent().GetValue();
+	SmearTangentVector(tangent);
+	std::cout << tangent.X() << ", " << tangent.Y() << std::endl;
+	hist_ax->Fill(tangent.X(), weight);
+	hist_ay->Fill(tangent.Y(), weight);
       }
     }
 

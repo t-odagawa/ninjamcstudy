@@ -2,13 +2,14 @@
 
 void StackModeMom() {
   
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode2.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode2.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_muon_mom = new THStack("hs_muon_mom", "Muon momentum;p_{#mu} [MeV/c];Entries");
   THStack *hs_pion_mom = new THStack("hs_pion_mom", "Pion momentum;p_{#pi} [MeV/c];Entries");
   THStack *hs_proton_mom = new THStack("hs_proton_mom", "Proton momentum;p_{p} [MeV/c];Entries");
 
+  THStack *hs_muon_mom_method = new THStack("hs_muon_mom_method", "Muon momentum;p_{#mu} [MeV/c];Entries");
   THStack *hs_pion_mom_method = new THStack("hs_pion_mom_method", "Pion momentum;p_{#pi} [MeV/c];Entries");
   THStack *hs_proton_mom_method = new THStack("hs_proton_mom_method", "Proton momentum;p_{p} [MeV/c];Entries");
 
@@ -34,15 +35,21 @@ void StackModeMom() {
     hs_proton_mom->Add(hist_proton_mom[mode_stack_order[i]]);
   }
 
+  TH1D *hist_muon_mcs = (TH1D*)file->Get("hist_muon_mom_mcs");
+  TH1D *hist_muon_range = (TH1D*)file->Get("hist_muon_mom_range");
   TH1D *hist_pion_mcs = (TH1D*)file->Get("hist_pion_mom_mcs");
   TH1D *hist_pion_range = (TH1D*)file->Get("hist_pion_mom_range");
   TH1D *hist_proton_mcs = (TH1D*)file->Get("hist_proton_mom_mcs");
   TH1D *hist_proton_range = (TH1D*)file->Get("hist_proton_mom_range");
+  hist_muon_mcs->SetFillColor(kRed);
+  hist_muon_range->SetFillColor(kBlue);
   hist_pion_mcs->SetFillColor(kRed);
   hist_pion_range->SetFillColor(kBlue);
   hist_proton_mcs->SetFillColor(kRed);
   hist_proton_range->SetFillColor(kBlue);
 
+  hs_muon_mom_method->Add(hist_muon_range);
+  hs_muon_mom_method->Add(hist_muon_mcs);
   hs_pion_mom_method->Add(hist_pion_range);
   hs_pion_mom_method->Add(hist_pion_mcs);
   hs_proton_mom_method->Add(hist_proton_range);
@@ -56,6 +63,7 @@ void StackModeMom() {
   hs_muon_mom->Write();
   hs_pion_mom->Write();
   hs_proton_mom->Write();
+  hs_muon_mom_method->Write();
   hs_pion_mom_method->Write();
   hs_proton_mom_method->Write();
   l_muon_mom->Write();

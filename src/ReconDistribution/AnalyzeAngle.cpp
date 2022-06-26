@@ -22,6 +22,7 @@
 #include <McsClass.hpp>
 
 #include "HistogramStyle.hpp"
+#include "DrawConst.hpp"
 
 namespace logging = boost::log;
 namespace fs = boost::filesystem;
@@ -30,12 +31,6 @@ namespace fs = boost::filesystem;
 void AnalyzeAngle(std::string b2filename,
 		  std::string momchfilename,
 		  std::string outputfilename) {
-
-  const double neutrino_beam_ax = -2.325e-2;
-  const double neutrino_beam_ay = -8.075e-2;
-  const double neutrino_beam_thetax = std::atan(neutrino_beam_ax); // rad
-  const double neutrino_beam_thetay = std::atan(neutrino_beam_ay);
-
 
   BOOST_LOG_TRIVIAL(info) << "==========Angle mode===========";
 
