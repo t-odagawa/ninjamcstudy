@@ -2,7 +2,7 @@
 
 void StackMode0pi2p() {
 
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode7.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode7.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_muon_mom = new THStack("hs_muon_mom", "Muon momentum;p_{#mu} [MeV/c];Entries");
@@ -82,7 +82,7 @@ void StackMode0pi2p() {
     hist_mom_ratio[i] = (TH1D*)file->Get(Form("hist_mom_ratio_%d", i));
     hist_mom_vecsum[i] = (TH1D*)file->Get(Form("hist_mom_vecsum_%d", i));
     hist_mom_scasum[i] = (TH1D*)file->Get(Form("hist_mom_scasum_%d", i));
-
+    hist_open_cos[i]->Scale(1. / 976. / 8.982 * 0.47 * 0.99);
     hist_dptt[i] = (TH1D*)file->Get(Form("hist_dptt_%d", i));
     hist_dpt[i] = (TH1D*)file->Get(Form("hist_dpt_%d", i));
     hist_pn[i] = (TH1D*)file->Get(Form("hist_pn_%d", i));

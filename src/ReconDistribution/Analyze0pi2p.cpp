@@ -305,7 +305,10 @@ void Analyze0pi2p(std::string b2filename,
 	if ( particle_id == 13 ) {
 	  num_muon++;
 	  muon_tangent.SetXYZ(ax, ay, 1.);
-	  muon_momentum = chain.ecc_mcs_mom[0]; // Baby MIND range?
+	  if ( chain.stop_flag == 0 ) 
+	    muon_momentum = chain.ecc_mcs_mom[0];
+	  else if ( chain.stop_flag == 1 )
+	    muon_momentum = chain.bm_range_mom;
 	  muon_momentum_vec = (muon_momentum / muon_tangent.Mag()) * muon_tangent;
 	}
 	else if ( particle_id == 2212 ) {
@@ -346,7 +349,9 @@ void Analyze0pi2p(std::string b2filename,
 
       }
 
+      if ( ev.chains.size() != 3 ) continue;
       if ( num_muon != 1 || num_proton != 2 || num_pion != 0 ) continue;
+
       if ( proton_momentum_low < 100 || proton_momentum_high < 100 )
 	std::cout << "Momentum error :"  << ev.groupid << std::endl;
       if ( proton_momentum_low > proton_momentum_high ) {

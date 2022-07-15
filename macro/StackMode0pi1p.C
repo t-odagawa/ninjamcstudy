@@ -2,7 +2,7 @@
 
 void StackMode0pi1p() {
 
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode6.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode6.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_muon_mom = new THStack("hs_muon_mom", "Muon momentum;p_{#mu} [MeV/c];Entries");

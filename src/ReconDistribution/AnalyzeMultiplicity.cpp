@@ -73,6 +73,15 @@ void AnalyzeMultiplicity(std::string b2filename,
     hist_water_mode_pion_multi[i]->SetFillStyle(mode_style[i]);
   }
 
+  TH1D *hist_water_proton_misid_multi = new TH1D("hist_water_proton_misid_multi",
+						 "Proton multiplicity (Water);# of tracks;Entries",
+						 10, 0.5, 10.5);
+  TH1D *hist_water_pion_misid_multi = new TH1D("hist_water_pion_misid_multi",
+					       "Pion multiplicity (Water);# of tracks;Entries",
+					       10, 0.5, 10.5);
+  // charge check
+  TH1D *hist_recon_charge = new TH1D("hist_recon_charge", "Charge ID;Reconstructed charge sign;Entries", 3, -1.5, 1.5);
+
   for ( auto ev : ev_vec ) {
 
     reader.ReadSpill(ev.groupid);
@@ -92,8 +101,9 @@ void AnalyzeMultiplicity(std::string b2filename,
 	int num_proton_water = 0;
 	int num_pion_water = 0;
 	for ( auto chain : ev.chains ) {
-	  if ( chain.particle_flag == 2212 ) num_proton_water++;
-	  else if ( std::fabs(chain.particle_flag) == 211 ) num_pion_water++;	
+	  if ( chain.particle_flag % 10000 == 13 ) hist_recon_charge->Fill(chain.charge_sign, ev.weight);
+	  if ( chain.particle_flag % 10000 == 2212 ) num_proton_water++;
+	  else if ( chain.particle_flag % 10000 == 211 ) num_pion_water++;	
 	}
 	hist_water_mode_proton_multi[mode_id]->Fill(num_proton_water, ev.weight);
 	hist_water_mode_pion_multi[mode_id]->Fill(num_pion_water, ev.weight);
@@ -117,6 +127,9 @@ void AnalyzeMultiplicity(std::string b2filename,
     hist_water_mode_proton_multi[i]->Write();
     hist_water_mode_pion_multi[i]->Write();
   }
+  hist_water_proton_misid_multi->Write();
+  hist_water_pion_misid_multi->Write();
+  hist_recon_charge->Write();
   outputfile->Close();
   
 }

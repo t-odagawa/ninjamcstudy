@@ -48,7 +48,7 @@ void Analyze0pi1p(std::string b2filename,
   // total
   TH1D *hist_muon_mom = new TH1D("hist_muon_mom",
 				 "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
-				 50, 0., 1500.);
+				 50, 0., 2000.);
   TH1D *hist_proton_mom = new TH1D("hist_proton_mom",
 				   "Proton reconstructed momentum;p_{p} [MeV/c];Entries",
 				   50, 0., 1500.);
@@ -66,16 +66,16 @@ void Analyze0pi1p(std::string b2filename,
 				   40, -1., 1.);
   TH2D *hist_muon_mom_ang = new TH2D("hist_muon_mom_ang",
 				     "Muon momentum vs angle;p_{#mu} [MeV/c];#theta_{#mu} [deg]",
-				     15, 0., 1500., 18, 0., 90.);
+				     50, 0., 2000., 18, 0., 90.);
   TH2D *hist_muon_mom_cos = new TH2D("hist_muon_mom_cos",
 				     "Muon momentum vs angle;p_{#mu} [MeV/c];cos#theta_{#mu}",
-				     15, 0., 1500., 20, 0., 1.);
+				     50, 0., 2000., 20, 0., 1.);
   TH2D *hist_proton_mom_ang = new TH2D("hist_proton_mom_ang",
 				       "Proton momentum vs angle;p_{p} [MeV/c];#theta_{p} [deg]",
-				       15., 0., 1500., 36, 0., 180.);
+				       50., 0., 1500., 36, 0., 180.);
   TH2D *hist_proton_mom_cos = new TH2D("hist_proton_mom_cos",
 				       "Proton momentum vs angle;p_{p} [MeV/c];cos#theta_{p}",
-				       15, 0., 1500., 40, -1., 1.);
+				       50, 0., 1500., 40, -1., 1.);
   TH1D *hist_q2 = new TH1D("hist_q2",
 			   "Q^{2};Q^{2} [MeV^{2}/c^{2}];Entries",
 			   100, 0, 1e6);
@@ -88,6 +88,63 @@ void Analyze0pi1p(std::string b2filename,
   TH2D *hist_nu_ene_recon_true = new TH2D("hist_nu_ene_recon_true",
 					  "Neutrino energy;E_{rec} [MeV];E_{true} [MeV]",
 					  100, 0, 2000, 100, 0, 2000);
+
+  TH1D *hist_muon_mom_mcs = new TH1D("hist_muon_mom_mcs",
+				     "Muon MCS momentum;p_{#mu, MCS} [MeV/c];Entries",
+				     50, 0., 2000.);
+  TH1D *hist_muon_mom_range = new TH1D("hist_muon_mom_range",
+				       "Muon rangemomentum;p_{#mu, range} [MeV/c];Entries",
+				       50, 0., 2000.);
+  TH1D *hist_proton_mom_mcs = new TH1D("hist_proton_mom_mcs",
+				       "Proton MCS momentum;p_{p, MCS} [MeV/c];Entries",
+				       50, 0., 1500.);
+  TH1D *hist_proton_mom_range = new TH1D("hist_proton_mom_range",
+					 "Proton range momentum;p_{p, range} [MeV/c];Entries",
+					 50, 0., 1500.);
+  TH2D *hist_muon_mom_ang_mcs = new TH2D("hist_muon_mom_ang_mcs",
+					 "Muon momentum vs angle;p_{#mu, MCS} [MeV/c];#theta_{#mu} [deg]",
+					 50, 0., 2000., 18, 0., 90.);
+  TH2D *hist_muon_mom_cos_mcs = new TH2D("hist_muon_mom_cos_mcs",
+					 "Muon momentum vs angle;p_{#mu, MCS} [MeV/c];cos#theta_{#mu}",
+					 50, 0., 2000., 18, 0., 90.);
+  TH2D *hist_muon_mom_ang_range = new TH2D("hist_muon_mom_ang_range",
+					 "Muon momentum vs angle;p_{#mu, range} [MeV/c];#theta_{#mu} [deg]",
+					 50, 0., 2000., 18, 0., 90.);
+  TH2D *hist_muon_mom_cos_range = new TH2D("hist_muon_mom_cos_range",
+					 "Muon momentum vs angle;p_{#mu, range} [MeV/c];cos#theta_{#mu}",
+					 50, 0., 2000., 18, 0., 90.);
+  TH2D *hist_proton_mom_ang_mcs = new TH2D("hist_proton_mom_ang_mcs",
+					   "Proton momentum vs angle;p_{p, MCS} [MeV/c];#theta_{p} [deg]",
+					   50, 0., 1500., 36, 0., 180.);
+  TH2D *hist_proton_mom_cos_mcs = new TH2D("hist_proton_mom_cos_mcs",
+					   "Proton momentum vs angle;p_{p, MCS} [MeV/c];cos#theta_{p}",
+					   50, 0., 1500., 36, 0., 180.);
+  TH2D *hist_proton_mom_ang_range = new TH2D("hist_proton_mom_ang_range",
+					     "Proton momentum vs angle;p_{p, range} [MeV/c];#theta_{p} [deg]",
+					     50, 0., 1500., 36, 0., 180.);
+  TH2D *hist_proton_mom_cos_range = new TH2D("hist_proton_mom_cos_range",
+					     "Proton momentum vs angle;p_{p, range} [MeV/c];cos#theta_{p}",
+					     50, 0., 1500., 36, 0., 180.);
+  
+  TH2D *hist_muon_mom_recon_true = new TH2D("hist_muon_mom_recon_true",
+					    "Muon momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
+					    50, 0., 2000., 50, 0., 2000.);
+  TH2D *hist_muon_mom_recon_true_mcs = new TH2D("hist_muon_mom_recon_true_mcs",
+						"Muon MCS momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
+						50, 0., 2000., 50, 0., 2000.); 
+  TH2D *hist_muon_mom_recon_true_range = new TH2D("hist_muon_mom_recon_true_range",
+						  "Muon rangemomentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
+						  50, 0., 2000., 50, 0., 2000.);
+  TH2D *hist_proton_mom_recon_true = new TH2D("hist_proton_mom_recon_true",
+					      "Proton momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+					      50, 0., 1500., 50, 0., 1500.);
+  TH2D *hist_proton_mom_recon_true_mcs = new TH2D("hist_proton_mom_recon_true_mcs",
+						  "Proton MCS momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+						  50, 0., 1500., 50, 0., 1500.); 
+  TH2D *hist_proton_mom_recon_true_range = new TH2D("hist_proton_mom_recon_true_range",
+						    "Proton rangemomentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
+						    50, 0., 1500., 50, 0., 1500.);
+
   // TKI
   TH1D *hist_dpt = new TH1D("hist_dpt",
 			    "#deltap_{T};#deltap_{T} [MeV/c];Entries",
@@ -198,6 +255,8 @@ void Analyze0pi1p(std::string b2filename,
       int num_proton = 0;
       int num_pion = 0;
       
+      bool muon_stop_flag = false;
+      bool proton_stop_flag = false;
       TVector3 muon_tangent;
       TVector3 proton_tangent;
       int proton_direction;
@@ -205,6 +264,8 @@ void Analyze0pi1p(std::string b2filename,
       double proton_momentum;
       TVector3 muon_momentum_vec;
       TVector3 proton_momentum_vec;
+      double true_muon_momentum;
+      double true_proton_momentum;
 
       for ( auto chain : ev.chains ) {
 
@@ -232,10 +293,26 @@ void Analyze0pi1p(std::string b2filename,
 	int true_particle_id = chain.particle_flag / 10000;
 	if ( particle_id != true_particle_id ) continue;
 
+	for ( auto true_chain : ev.true_chains ) {
+	  if ( chain.chainid == true_chain.chainid ) {
+	    if ( particle_id == 13 )
+	      true_muon_momentum = true_chain.bm_range_mom;
+	    else if ( particle_id == 2212 )
+	      true_proton_momentum = true_chain.bm_range_mom;
+	    break;
+	  }
+	}
+
 	if ( particle_id == 13 ) {
 	  num_muon++;
 	  muon_tangent.SetXYZ(ax, ay, 1.);
-	  muon_momentum = chain.ecc_mcs_mom[0]; // Baby MIND range?
+	  if ( chain.stop_flag == 1 ) {
+	    muon_momentum = chain.bm_range_mom;
+	    muon_stop_flag = true;
+	  }
+	  else if ( chain.stop_flag == 0 ) {
+	    muon_momentum = chain.ecc_mcs_mom[0];
+	  }
 	  muon_momentum_vec = (muon_momentum / muon_tangent.Mag()) * muon_tangent;
 	}
 	else if ( particle_id == 2212 ) {
@@ -250,6 +327,7 @@ void Analyze0pi1p(std::string b2filename,
 	  }
 	  if ( chain.stop_flag == 2 ) {
 	    proton_momentum = chain.ecc_range_mom[1];
+	    proton_stop_flag = true;
 	  }
 	  else {
 	    proton_momentum = chain.ecc_mcs_mom[1];
@@ -261,6 +339,7 @@ void Analyze0pi1p(std::string b2filename,
 	}
       }
 
+      if ( ev.chains.size() != 2 ) continue;
       if ( num_muon != 1 || num_proton != 1 || num_pion != 0 ) continue;
 
       hist_muon_mom->Fill(muon_momentum, ev.weight);
@@ -289,10 +368,40 @@ void Analyze0pi1p(std::string b2filename,
       hist_muon_mom_cos->Fill(muon_momentum, std::cos(muon_rad), ev.weight);
       hist_proton_mom_ang->Fill(proton_momentum, proton_ang, ev.weight);
       hist_proton_mom_cos->Fill(proton_momentum, std::cos(proton_ang * TMath::DegToRad()), ev.weight);
+
+      hist_muon_mom_recon_true->Fill(true_muon_momentum, muon_momentum, ev.weight);
+      hist_proton_mom_recon_true->Fill(true_proton_momentum, proton_momentum, ev.weight);
+
+      if ( muon_stop_flag ) {
+	hist_muon_mom_range->Fill(muon_momentum, ev.weight);
+	hist_muon_mom_ang_range->Fill(muon_momentum, muon_ang, ev.weight);
+	hist_muon_mom_cos_range->Fill(muon_momentum, std::cos(muon_rad), ev.weight);
+	hist_muon_mom_recon_true_range->Fill(true_muon_momentum, muon_momentum, ev.weight);
+      }
+      else {
+	hist_muon_mom_mcs->Fill(muon_momentum, ev.weight);
+	hist_muon_mom_ang_mcs->Fill(muon_momentum, muon_ang, ev.weight);
+	hist_muon_mom_cos_mcs->Fill(muon_momentum, std::cos(muon_rad), ev.weight);
+	hist_muon_mom_recon_true_mcs->Fill(true_muon_momentum, muon_momentum, ev.weight);
+      }
+
+      if ( proton_stop_flag ) {
+	hist_proton_mom_range->Fill(proton_momentum, ev.weight);
+	hist_proton_mom_ang_range->Fill(proton_momentum, proton_ang, ev.weight);
+	hist_proton_mom_cos_range->Fill(proton_momentum, std::cos(proton_ang * TMath::RadToDeg()), ev.weight);
+	hist_proton_mom_recon_true_range->Fill(true_proton_momentum, proton_momentum, ev.weight);
+      }
+      else {
+	hist_proton_mom_mcs->Fill(proton_momentum, ev.weight);
+	hist_proton_mom_ang_mcs->Fill(proton_momentum, proton_ang, ev.weight);
+	hist_proton_mom_cos_mcs->Fill(proton_momentum, std::cos(proton_ang * TMath::RadToDeg()), ev.weight);
+	hist_proton_mom_recon_true_mcs->Fill(true_proton_momentum, proton_momentum, ev.weight);
+      }             
       
       double muon_energy = std::sqrt(muon_momentum * muon_momentum + muon_mass * muon_mass);      
-      double recon_nu_ene = (proton_mass * muon_energy - muon_mass * muon_mass / 2.)
-	/ (proton_mass - muon_energy + muon_momentum * std::cos(muon_rad));
+      double recon_nu_ene = (neutron_mass * muon_energy - muon_mass * muon_mass / 2.
+			     + (proton_mass * proton_mass - neutron_mass * neutron_mass) / 2.)
+	/ (neutron_mass - muon_energy + muon_momentum * std::cos(muon_rad));
       double recon_q2 = - muon_mass * muon_mass + 2 * recon_nu_ene * (muon_energy - muon_momentum * std::cos(muon_rad));
       hist_q2->Fill(recon_q2, ev.weight);
       hist_mode_q2[mode_id]->Fill(recon_q2, ev.weight);
@@ -347,6 +456,24 @@ void Analyze0pi1p(std::string b2filename,
   hist_nu_ene_bias->Write();
   hist_nu_ene_recon->Write();
   hist_nu_ene_recon_true->Write();
+  hist_muon_mom_mcs->Write();
+  hist_muon_mom_range->Write();
+  hist_proton_mom_range->Write();
+  hist_proton_mom_mcs->Write();
+  hist_muon_mom_ang_mcs->Write();
+  hist_muon_mom_cos_mcs->Write();
+  hist_muon_mom_ang_range->Write();
+  hist_muon_mom_cos_range->Write();
+  hist_proton_mom_ang_mcs->Write();
+  hist_proton_mom_cos_mcs->Write();
+  hist_proton_mom_ang_range->Write();
+  hist_proton_mom_cos_range->Write();
+  hist_muon_mom_recon_true->Write();
+  hist_muon_mom_recon_true_mcs->Write();
+  hist_muon_mom_recon_true_range->Write();
+  hist_proton_mom_recon_true->Write();
+  hist_proton_mom_recon_true_mcs->Write();
+  hist_proton_mom_recon_true_range->Write();
   hist_dpt->Write();
   hist_dalphat->Write();
   hist_cosdat->Write();

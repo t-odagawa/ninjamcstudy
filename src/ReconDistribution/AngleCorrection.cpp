@@ -7,6 +7,7 @@
 
 #include <TFile.h>
 #include <TH1D.h>
+#include <TH2D.h>
 
 #include <B2Reader.hh>
 #include <B2SpillSummary.hh>
@@ -48,6 +49,13 @@ int main (int argc, char *argv[]) {
 			   40, -1, 1);
   TH1D *hist_ay = new TH1D("hist_ay", "ECC rotation y;tan#theta_y;Entries",
 			   40, -1, 1);
+  TH2D *hist_pos = new TH2D("hist_pos", "Rotation determinating vertices;x [mm];y [mm]",
+			    1000, -3000, 11000, 1000, -2000, 12000);
+  TH2D *hist_yz = new TH2D("hist_yz", "Rotation determinating vertices;z [mm];y [mm]",
+			    1000, -15000, -5000, 1000, -2000, 12000);
+  TH2D *hist_xz = new TH2D("hist_xz", "Rotation determinating vertices;z [mm];x [mm]",
+			    1000, -15000, -5000, 1000, -3000, 11000);
+
 
   // TSpectrum *s = new TSpectrum();
 
@@ -59,6 +67,7 @@ int main (int argc, char *argv[]) {
     const auto *event = it_event.Next();
 
     auto &vertex = event->GetPrimaryVertex();
+    auto vertex_position = vertex.GetAbsolutePosition().GetValue();
     double weight = vertex.GetTotalCrossSection() * event->GetNormalization();
 
     // true muon track を見つける
@@ -125,6 +134,9 @@ int main (int argc, char *argv[]) {
 	std::cout << tangent.X() << ", " << tangent.Y() << std::endl;
 	hist_ax->Fill(tangent.X(), weight);
 	hist_ay->Fill(tangent.Y(), weight);
+	hist_pos->Fill(vertex_position.X(), vertex_position.Y(), weight);
+	hist_yz->Fill(vertex_position.Z(), vertex_position.Y(), weight);
+	hist_xz->Fill(vertex_position.Z(), vertex_position.X(), weight);
       }
     }
 
@@ -133,6 +145,9 @@ int main (int argc, char *argv[]) {
   ofile->cd();
   hist_ax->Write();
   hist_ay->Write();
+  hist_pos->Write();
+  hist_yz->Write();
+  hist_xz->Write();
   ofile->Close();
 
   std::exit(0);

@@ -19,6 +19,8 @@ add_executable(MomchDraw
 	Analyze0pi1p.cpp
 	Analyze0pi2p.hpp
 	Analyze0pi2p.cpp
+	AnalyzePartnerEfficiency.hpp
+	AnalyzePartnerEfficiency.cpp
 	)
 
 target_link_libraries(MomchDraw
@@ -39,3 +41,14 @@ target_link_libraries(AngleCorrection
 )
 
 install(TARGETS AngleCorrection DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+add_executable(WallDistribution
+	WallDistribution.cpp)
+
+target_link_libraries(WallDistribution
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS WallDistribution DESTINATION "${CMAKE_INSTALL_BINDIR}")
+

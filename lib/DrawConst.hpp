@@ -11,5 +11,8 @@ const double neutrino_beam_thetay = std::atan(neutrino_beam_ay); // rad
 const double muon_mass = 105.658; // MeV/c2
 const double pion_mass = 139.571;
 const double proton_mass = 938.272;
+const double neutron_mass = 939.565;
+
+const double water_removal_energy = 27;
 
 #endif

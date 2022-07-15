@@ -66,6 +66,32 @@ void AnalyzeAngle(std::string b2filename,
 				       "Proton reconstructed angle;#theta_{p} [deg];Entries",
 				       36, 0., 180.);
 
+  TH1D *hist_muon_misid_ang_cos = new TH1D("hist_muon_misid_ang_cos",
+					   "\"Muon\" reconstructed angle;cos#theta_{#mu};Entries",
+					   20, 0., 1.);
+  TH1D *hist_muon_misid_ang_deg = new  TH1D("hist_muon_misid_ang_deg",
+					    "\"Muon\" reconstructed angle;#theta_{#mu} [deg];Entries",
+					    18, 0., 90.);
+  TH1D *hist_proton_misid_ang_cos = new TH1D("hist_proton_misid_ang_cos",
+					     "\"Proton\" reconstructed angle;cos#theta_{p};Entries",
+					     40, -1., 1.);
+  TH1D *hist_proton_misid_ang_deg = new TH1D("hist_proton_misid_ang_deg",
+					     "\"Proton\" reconstructed angle;#theta_{p} [deg];Entries",
+					     36, 0., 180.);
+  TH1D *hist_pion_misid_ang_cos = new TH1D("hist_pion_misid_ang_cos",
+					   "\"Pion\" reconstructed angle;cos#theta_{#pi};Entries",
+					   40, -1., 1.);
+  TH1D *hist_pion_misid_ang_deg = new TH1D("hist_pion_misid_ang_deg",
+					   "\"Pion\" reconstructed angle;#theta_{#pi} [deg];Entries",
+					   36, 0., 180.);
+
+  TH1D *hist_muon_ang_cos_single = new TH1D("hist_muon_ang_cos_single",
+					    "Muon reconstructed angle;cos#theta_{#mu};Entries",
+					    20, 0., 1.);
+  TH1D *hist_muon_ang_deg_single = new TH1D("hist_muon_ang_deg_single",
+					    "Muon reconstructed angle;#theta_{#mu} [deg];Entries",
+					    18, 0., 90.);
+
   TH1D *hist_mode_muon_ang_cos[num_ninja_mode];
   TH1D *hist_mode_muon_ang_deg[num_ninja_mode];
   TH1D *hist_mode_pion_ang_cos[num_ninja_mode];
@@ -94,7 +120,7 @@ void AnalyzeAngle(std::string b2filename,
   }
 
   for ( auto ev : ev_vec ) {
-
+    std::cout << ev.groupid << std::endl;
     reader.ReadSpill(ev.groupid);
     auto &spill_summary = reader.GetSpillSummary();
     auto it_event = spill_summary.BeginTrueEvent();
@@ -110,8 +136,7 @@ void AnalyzeAngle(std::string b2filename,
       for ( auto chain : ev.chains ) {
 	int particle_id = chain.particle_flag % 10000;
 	int true_particle_id = chain.particle_flag / 10000;
-	if ( particle_id != true_particle_id ) continue;
-	
+
 	// vertex に一番近い basetrack の角度を使う
 	double ax = 0.;
 	double ay = 0.;
@@ -138,26 +163,44 @@ void AnalyzeAngle(std::string b2filename,
 	  theta_deg += 180.;
 	}
 	double cosine = std::cos(theta_deg * TMath::DegToRad());
-	
-	if ( particle_id == 13 ) {
-	  hist_muon_ang_cos->Fill(cosine, ev.weight);
-	  hist_muon_ang_deg->Fill(theta_deg, ev.weight);
-	  hist_mode_muon_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	  hist_mode_muon_ang_deg[mode_id]->Fill(theta_deg, ev.weight);	
+	if ( particle_id == true_particle_id ) {
+	  if ( particle_id == 13 ) {
+	    hist_muon_ang_cos->Fill(cosine, ev.weight);
+	    hist_muon_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_mode_muon_ang_cos[mode_id]->Fill(cosine, ev.weight);
+	    hist_mode_muon_ang_deg[mode_id]->Fill(theta_deg, ev.weight);	
+	    if ( ev.chains.size() == 1 ) {
+	      hist_muon_ang_cos_single->Fill(cosine, ev.weight);
+	      hist_muon_ang_deg_single->Fill(theta_deg, ev.weight);
+	    }
+	  }
+	  else if ( particle_id == 211 ) {
+	    hist_pion_ang_cos->Fill(cosine, ev.weight);
+	    hist_pion_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_mode_pion_ang_cos[mode_id]->Fill(cosine, ev.weight);
+	    hist_mode_pion_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
+	  }
+	  else if ( particle_id == 2212 ) {
+	    hist_proton_ang_cos->Fill(cosine, ev.weight);
+	    hist_proton_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_mode_proton_ang_cos[mode_id]->Fill(cosine, ev.weight);
+	    hist_mode_proton_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
+	  }
 	}
-	else if ( particle_id == 211 ) {
-	  hist_pion_ang_cos->Fill(cosine, ev.weight);
-	  hist_pion_ang_deg->Fill(theta_deg, ev.weight);
-	  hist_mode_pion_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	  hist_mode_pion_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
+	else if ( particle_id != true_particle_id ) {
+	  if ( particle_id == 13 ) {
+	    hist_muon_misid_ang_cos->Fill(cosine, ev.weight);
+	    hist_muon_misid_ang_deg->Fill(theta_deg, ev.weight);
+	  }
+	  else if ( particle_id == 211 ) {
+	    hist_pion_misid_ang_cos->Fill(cosine, ev.weight);
+	    hist_pion_misid_ang_deg->Fill(theta_deg, ev.weight);
+	  }
+	  else if ( particle_id == 2212 ) {
+	    hist_proton_misid_ang_cos->Fill(cosine, ev.weight);
+	    hist_proton_misid_ang_deg->Fill(theta_deg, ev.weight);
+	  }
 	}
-	else if ( particle_id == 2212 ) {
-	  hist_proton_ang_cos->Fill(cosine, ev.weight);
-	  hist_proton_ang_deg->Fill(theta_deg, ev.weight);
-	  hist_mode_proton_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	  hist_mode_proton_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
-	}
-	
       }
     }
     
@@ -170,6 +213,16 @@ void AnalyzeAngle(std::string b2filename,
   hist_pion_ang_deg->Write();
   hist_proton_ang_cos->Write();
   hist_proton_ang_deg->Write();
+
+  hist_muon_misid_ang_cos->Write();
+  hist_muon_misid_ang_deg->Write();
+  hist_proton_misid_ang_cos->Write();
+  hist_proton_misid_ang_deg->Write();
+  hist_pion_misid_ang_cos->Write();
+  hist_pion_misid_ang_deg->Write();
+
+  hist_muon_ang_cos_single->Write();
+  hist_muon_ang_deg_single->Write();
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_mode_muon_ang_cos[i]->Write();
     hist_mode_muon_ang_deg[i]->Write();

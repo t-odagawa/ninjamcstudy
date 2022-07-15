@@ -1,6 +1,6 @@
 void StackPid() {
 
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode4.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode4.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_lr = new THStack("hs_lr", "Likelihood ratio;Likelihood ratio;Entries");
@@ -16,6 +16,16 @@ void StackPid() {
   l_lr->AddEntry(hist_lr_pi, "Pion", "f");
 
   double scale = 0.47e-3;
+
+  double proton_eff = hist_lr_p->Integral(1,10);
+  double proton_mis = hist_lr_p->Integral(11,20);
+  double pion_eff = hist_lr_pi->Integral(11,20);
+  double pion_mis = hist_lr_pi->Integral(1,10);
+
+  std::cout << "Proton efficiency : " << proton_eff / (proton_eff + proton_mis) << std::endl;
+  std::cout << "Proton purity : " << proton_eff / (proton_eff + pion_mis) << std::endl;
+  std::cout << "Pion efficiency : " << pion_eff / (pion_eff + pion_mis) << std::endl;
+  std::cout << "Pion purity : " << pion_eff / (pion_eff + proton_mis) << std:: endl;
 
   hs_lr->Add(hist_lr_p);
   hs_lr->Add(hist_lr_pi);

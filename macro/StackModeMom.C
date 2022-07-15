@@ -19,13 +19,18 @@ void StackModeMom() {
   TLegend *l_method = new TLegend(0.6, 0.5, 0.85, 0.85);
   l_method->SetName("l_method");
 
+  double scale = 1. / 976. / 8.98 * 0.47 * 0.99;
+
   TH1D *hist_muon_mom[num_ninja_mode];
   TH1D *hist_pion_mom[num_ninja_mode];
   TH1D *hist_proton_mom[num_ninja_mode];
   for ( int i = 0; i < num_ninja_mode; i++ ) {
     hist_muon_mom[i] = (TH1D*)file->Get(Form("hist_muon_mom_%d", i));
+    hist_muon_mom[i]->Scale(scale);
     hist_pion_mom[i] = (TH1D*)file->Get(Form("hist_pion_mom_%d", i));
+    hist_pion_mom[i]->Scale(scale);
     hist_proton_mom[i] = (TH1D*)file->Get(Form("hist_proton_mom_%d", i));
+    hist_proton_mom[i]->Scale(scale);
     l_muon_mom->AddEntry(hist_muon_mom[i], mode_name[i], "f");    
   }
 
@@ -41,12 +46,20 @@ void StackModeMom() {
   TH1D *hist_pion_range = (TH1D*)file->Get("hist_pion_mom_range");
   TH1D *hist_proton_mcs = (TH1D*)file->Get("hist_proton_mom_mcs");
   TH1D *hist_proton_range = (TH1D*)file->Get("hist_proton_mom_range");
+
   hist_muon_mcs->SetFillColor(kRed);
   hist_muon_range->SetFillColor(kBlue);
   hist_pion_mcs->SetFillColor(kRed);
   hist_pion_range->SetFillColor(kBlue);
   hist_proton_mcs->SetFillColor(kRed);
   hist_proton_range->SetFillColor(kBlue);
+
+  hist_muon_mcs->Scale(scale);
+  hist_muon_range->Scale(scale);
+  hist_pion_mcs->Scale(scale);
+  hist_pion_range->Scale(scale);
+  hist_proton_mcs->Scale(scale);
+  hist_proton_range->Scale(scale);
 
   hs_muon_mom_method->Add(hist_muon_range);
   hs_muon_mom_method->Add(hist_muon_mcs);

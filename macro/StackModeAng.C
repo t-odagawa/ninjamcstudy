@@ -2,7 +2,7 @@
 
 void StackModeAng() {
 
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/output_mode3.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode3.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_muon_ang = new THStack("hs_muon_ang", "Muon angle;#theta_{#mu} [deg];Entries");
