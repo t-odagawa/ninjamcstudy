@@ -15,7 +15,10 @@ void StackPid() {
   hist_lr_pi->SetFillColor(394);
   l_lr->AddEntry(hist_lr_pi, "Pion", "f");
 
-  double scale = 0.47e-3;
+  double scale = 1 / 976. / 33.156 * 0.47 * 0.99;
+
+  hist_lr_p->Scale(scale);
+  hist_lr_pi->Scale(scale);
 
   double proton_eff = hist_lr_p->Integral(1,10);
   double proton_mis = hist_lr_p->Integral(11,20);

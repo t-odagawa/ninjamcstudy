@@ -376,8 +376,8 @@ void Analyze0pi2p(std::string b2filename,
       double muon_ang = muon_rad * TMath::RadToDeg();
       hist_muon_ang->Fill(muon_ang, ev.weight);
       hist_mode_muon_ang[mode_id]->Fill(muon_ang, ev.weight);
-      hist_muon_cos->Fill(std::cos(muon_ang), ev.weight);
-      hist_mode_muon_cos[mode_id]->Fill(std::cos(muon_ang), ev.weight);
+      hist_muon_cos->Fill(std::cos(muon_rad), ev.weight);
+      hist_mode_muon_cos[mode_id]->Fill(std::cos(muon_rad), ev.weight);
 
       double proton_rad_high = std::atan(proton_direction_high * std::hypot(proton_tangent_high.X(),
 									    proton_tangent_high.Y()));

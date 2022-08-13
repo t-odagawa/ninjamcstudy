@@ -48,10 +48,10 @@ void Analyze0pi1p(std::string b2filename,
   // total
   TH1D *hist_muon_mom = new TH1D("hist_muon_mom",
 				 "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
-				 50, 0., 2000.);
+				 20, 0., 2000.);
   TH1D *hist_proton_mom = new TH1D("hist_proton_mom",
 				   "Proton reconstructed momentum;p_{p} [MeV/c];Entries",
-				   50, 0., 1500.);
+				   15, 0., 1500.);
   TH1D *hist_muon_ang = new TH1D("hist_muon_ang",
 				 "Muon reconstructed angle;#theta_{#mu} [deg];Entries",
 				 18, 0., 90.);
@@ -66,16 +66,16 @@ void Analyze0pi1p(std::string b2filename,
 				   40, -1., 1.);
   TH2D *hist_muon_mom_ang = new TH2D("hist_muon_mom_ang",
 				     "Muon momentum vs angle;p_{#mu} [MeV/c];#theta_{#mu} [deg]",
-				     50, 0., 2000., 18, 0., 90.);
+				     200, 0., 2000., 90, 0., 90.);
   TH2D *hist_muon_mom_cos = new TH2D("hist_muon_mom_cos",
 				     "Muon momentum vs angle;p_{#mu} [MeV/c];cos#theta_{#mu}",
-				     50, 0., 2000., 20, 0., 1.);
+				     200, 0., 2000., 100, 0., 1.);
   TH2D *hist_proton_mom_ang = new TH2D("hist_proton_mom_ang",
 				       "Proton momentum vs angle;p_{p} [MeV/c];#theta_{p} [deg]",
-				       50., 0., 1500., 36, 0., 180.);
+				       150., 0., 1500., 180, 0., 180.);
   TH2D *hist_proton_mom_cos = new TH2D("hist_proton_mom_cos",
 				       "Proton momentum vs angle;p_{p} [MeV/c];cos#theta_{p}",
-				       50, 0., 1500., 40, -1., 1.);
+				       150, 0., 1500., 200, -1., 1.);
   TH1D *hist_q2 = new TH1D("hist_q2",
 			   "Q^{2};Q^{2} [MeV^{2}/c^{2}];Entries",
 			   100, 0, 1e6);
@@ -84,66 +84,66 @@ void Analyze0pi1p(std::string b2filename,
 				    100, -1., 1.);
   TH1D *hist_nu_ene_recon = new TH1D("hist_nu_ene_recon",
 				     "Reconstructed neutrino energy;E_{rec} [MeV];Entries",
-				     100, 0, 2000);
+				     20, 0, 2000);
   TH2D *hist_nu_ene_recon_true = new TH2D("hist_nu_ene_recon_true",
 					  "Neutrino energy;E_{rec} [MeV];E_{true} [MeV]",
-					  100, 0, 2000, 100, 0, 2000);
+					  20, 0, 2000, 20, 0, 2000);
 
   TH1D *hist_muon_mom_mcs = new TH1D("hist_muon_mom_mcs",
 				     "Muon MCS momentum;p_{#mu, MCS} [MeV/c];Entries",
-				     50, 0., 2000.);
+				     20, 0., 2000.);
   TH1D *hist_muon_mom_range = new TH1D("hist_muon_mom_range",
 				       "Muon rangemomentum;p_{#mu, range} [MeV/c];Entries",
-				       50, 0., 2000.);
+				       20, 0., 2000.);
   TH1D *hist_proton_mom_mcs = new TH1D("hist_proton_mom_mcs",
 				       "Proton MCS momentum;p_{p, MCS} [MeV/c];Entries",
-				       50, 0., 1500.);
+				       15, 0., 1500.);
   TH1D *hist_proton_mom_range = new TH1D("hist_proton_mom_range",
 					 "Proton range momentum;p_{p, range} [MeV/c];Entries",
-					 50, 0., 1500.);
+					 15, 0., 1500.);
   TH2D *hist_muon_mom_ang_mcs = new TH2D("hist_muon_mom_ang_mcs",
 					 "Muon momentum vs angle;p_{#mu, MCS} [MeV/c];#theta_{#mu} [deg]",
-					 50, 0., 2000., 18, 0., 90.);
+					 200, 0., 2000., 90, 0., 90.);
   TH2D *hist_muon_mom_cos_mcs = new TH2D("hist_muon_mom_cos_mcs",
 					 "Muon momentum vs angle;p_{#mu, MCS} [MeV/c];cos#theta_{#mu}",
-					 50, 0., 2000., 18, 0., 90.);
+					 200, 0., 2000., 90, 0., 90.);
   TH2D *hist_muon_mom_ang_range = new TH2D("hist_muon_mom_ang_range",
 					 "Muon momentum vs angle;p_{#mu, range} [MeV/c];#theta_{#mu} [deg]",
-					 50, 0., 2000., 18, 0., 90.);
+					 200, 0., 2000., 90, 0., 90.);
   TH2D *hist_muon_mom_cos_range = new TH2D("hist_muon_mom_cos_range",
 					 "Muon momentum vs angle;p_{#mu, range} [MeV/c];cos#theta_{#mu}",
-					 50, 0., 2000., 18, 0., 90.);
+					 200, 0., 2000., 90, 0., 90.);
   TH2D *hist_proton_mom_ang_mcs = new TH2D("hist_proton_mom_ang_mcs",
 					   "Proton momentum vs angle;p_{p, MCS} [MeV/c];#theta_{p} [deg]",
-					   50, 0., 1500., 36, 0., 180.);
+					   150, 0., 1500., 180, 0., 180.);
   TH2D *hist_proton_mom_cos_mcs = new TH2D("hist_proton_mom_cos_mcs",
 					   "Proton momentum vs angle;p_{p, MCS} [MeV/c];cos#theta_{p}",
-					   50, 0., 1500., 36, 0., 180.);
+					   150, 0., 1500., 180, 0., 180.);
   TH2D *hist_proton_mom_ang_range = new TH2D("hist_proton_mom_ang_range",
 					     "Proton momentum vs angle;p_{p, range} [MeV/c];#theta_{p} [deg]",
-					     50, 0., 1500., 36, 0., 180.);
+					     150, 0., 1500., 180, 0., 180.);
   TH2D *hist_proton_mom_cos_range = new TH2D("hist_proton_mom_cos_range",
 					     "Proton momentum vs angle;p_{p, range} [MeV/c];cos#theta_{p}",
-					     50, 0., 1500., 36, 0., 180.);
+					     150, 0., 1500., 180, 0., 180.);
   
   TH2D *hist_muon_mom_recon_true = new TH2D("hist_muon_mom_recon_true",
 					    "Muon momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
-					    50, 0., 2000., 50, 0., 2000.);
+					    200, 0., 2000., 200, 0., 2000.);
   TH2D *hist_muon_mom_recon_true_mcs = new TH2D("hist_muon_mom_recon_true_mcs",
 						"Muon MCS momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
-						50, 0., 2000., 50, 0., 2000.); 
+						200, 0., 2000., 200, 0., 2000.); 
   TH2D *hist_muon_mom_recon_true_range = new TH2D("hist_muon_mom_recon_true_range",
 						  "Muon rangemomentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
-						  50, 0., 2000., 50, 0., 2000.);
+						  200, 0., 2000., 200, 0., 2000.);
   TH2D *hist_proton_mom_recon_true = new TH2D("hist_proton_mom_recon_true",
 					      "Proton momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
-					      50, 0., 1500., 50, 0., 1500.);
+					      150, 0., 1500., 150, 0., 1500.);
   TH2D *hist_proton_mom_recon_true_mcs = new TH2D("hist_proton_mom_recon_true_mcs",
 						  "Proton MCS momentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
-						  50, 0., 1500., 50, 0., 1500.); 
+						  150, 0., 1500., 150, 0., 1500.); 
   TH2D *hist_proton_mom_recon_true_range = new TH2D("hist_proton_mom_recon_true_range",
 						    "Proton rangemomentum;p_{p, true} [MeV/c];p_{p, recon} [MeV/c]",
-						    50, 0., 1500., 50, 0., 1500.);
+						    150, 0., 1500., 150, 0., 1500.);
 
   // TKI
   TH1D *hist_dpt = new TH1D("hist_dpt",
@@ -186,7 +186,7 @@ void Analyze0pi1p(std::string b2filename,
   TH1D *hist_mode_dptx[num_ninja_mode];
   TH1D *hist_mode_dpty[num_ninja_mode];
   for ( int i = 0; i < num_ninja_mode; i++ ) {
-    hist_mode_muon_mom[i] = new TH1D(Form("hist_muon_mom_%d", i), "", 15, 0., 1500.);
+    hist_mode_muon_mom[i] = new TH1D(Form("hist_muon_mom_%d", i), "", 20, 0., 2000.);
     hist_mode_muon_mom[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom[i]->SetFillStyle(mode_style[i]);
     hist_mode_proton_mom[i] = new TH1D(Form("hist_proton_mom_%d", i), "", 15, 0., 1500.);

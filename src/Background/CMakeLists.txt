@@ -45,6 +45,17 @@ target_link_libraries(DownWagasciBG
 
 install(TARGETS DownWagasciBG DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+add_executable(UpWagasciBG
+	UpWagasciBG.cpp
+	)
+
+target_link_libraries(UpWagasciBG
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS UpWagasciBG DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 add_executable(OtherEccBG
 	OtherEccBG.cpp
 	)
@@ -90,3 +101,14 @@ target_link_libraries(MomentumConsistency
 )
 
 install(TARGETS MomentumConsistency DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+add_executable(MuonMisMatchCheck
+	MuonMisMatchCheck.cpp
+	)
+
+target_link_libraries(MuonMisMatchCheck
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS MuonMisMatchCheck DESTINATION "${CMAKE_INSTALL_BINDIR}")

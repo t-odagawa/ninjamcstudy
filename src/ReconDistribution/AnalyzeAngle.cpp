@@ -66,25 +66,6 @@ void AnalyzeAngle(std::string b2filename,
 				       "Proton reconstructed angle;#theta_{p} [deg];Entries",
 				       36, 0., 180.);
 
-  TH1D *hist_muon_misid_ang_cos = new TH1D("hist_muon_misid_ang_cos",
-					   "\"Muon\" reconstructed angle;cos#theta_{#mu};Entries",
-					   20, 0., 1.);
-  TH1D *hist_muon_misid_ang_deg = new  TH1D("hist_muon_misid_ang_deg",
-					    "\"Muon\" reconstructed angle;#theta_{#mu} [deg];Entries",
-					    18, 0., 90.);
-  TH1D *hist_proton_misid_ang_cos = new TH1D("hist_proton_misid_ang_cos",
-					     "\"Proton\" reconstructed angle;cos#theta_{p};Entries",
-					     40, -1., 1.);
-  TH1D *hist_proton_misid_ang_deg = new TH1D("hist_proton_misid_ang_deg",
-					     "\"Proton\" reconstructed angle;#theta_{p} [deg];Entries",
-					     36, 0., 180.);
-  TH1D *hist_pion_misid_ang_cos = new TH1D("hist_pion_misid_ang_cos",
-					   "\"Pion\" reconstructed angle;cos#theta_{#pi};Entries",
-					   40, -1., 1.);
-  TH1D *hist_pion_misid_ang_deg = new TH1D("hist_pion_misid_ang_deg",
-					   "\"Pion\" reconstructed angle;#theta_{#pi} [deg];Entries",
-					   36, 0., 180.);
-
   TH1D *hist_muon_ang_cos_single = new TH1D("hist_muon_ang_cos_single",
 					    "Muon reconstructed angle;cos#theta_{#mu};Entries",
 					    20, 0., 1.);
@@ -92,6 +73,7 @@ void AnalyzeAngle(std::string b2filename,
 					    "Muon reconstructed angle;#theta_{#mu} [deg];Entries",
 					    18, 0., 90.);
 
+  // Muon is correctly id-ed
   TH1D *hist_mode_muon_ang_cos[num_ninja_mode];
   TH1D *hist_mode_muon_ang_deg[num_ninja_mode];
   TH1D *hist_mode_pion_ang_cos[num_ninja_mode];
@@ -119,8 +101,38 @@ void AnalyzeAngle(std::string b2filename,
     hist_mode_proton_ang_deg[i]->SetFillStyle(mode_style[i]);
   }
 
+  // Muon is not id-ed
+  TH1D *hist_muon_misid_ang_cos = new TH1D("hist_muon_misid_ang_cos",
+					   "\"Muon\" reconstructed angle;cos#theta_{#mu};Entries",
+					   20, 0., 1.);
+  TH1D *hist_muon_misid_ang_deg = new  TH1D("hist_muon_misid_ang_deg",
+					    "\"Muon\" reconstructed angle;#theta_{#mu} [deg];Entries",
+					    18, 0., 90.);
+  TH1D *hist_pion_ang_cos_muon_misid = new TH1D("hist_pion_ang_cos_muon_misid",
+						"", 40, -1., 1.);
+  TH1D *hist_pion_ang_deg_muon_misid = new TH1D("hist_pion_ang_deg_muon_misid",
+						"", 36, 0., 180.);
+  TH1D *hist_proton_ang_cos_muon_misid = new TH1D("hist_proton_ang_cos_muon_misid",
+						  "", 40, -1., 1.);
+  TH1D *hist_proton_ang_deg_muon_misid = new TH1D("hist_proton_ang_deg_muon_misid",
+						  "", 36, 0., 180.);
+
+  // Muon is correctly id-ed but partner is not
+  TH1D *hist_proton_misid_ang_cos = new TH1D("hist_proton_misid_ang_cos",
+					     "\"Proton\" reconstructed angle;cos#theta_{p};Entries",
+					     40, -1., 1.);
+  TH1D *hist_proton_misid_ang_deg = new TH1D("hist_proton_misid_ang_deg",
+					     "\"Proton\" reconstructed angle;#theta_{p} [deg];Entries",
+					     36, 0., 180.);
+  TH1D *hist_pion_misid_ang_cos = new TH1D("hist_pion_misid_ang_cos",
+					   "\"Pion\" reconstructed angle;cos#theta_{#pi};Entries",
+					   40, -1., 1.);
+  TH1D *hist_pion_misid_ang_deg = new TH1D("hist_pion_misid_ang_deg",
+					   "\"Pion\" reconstructed angle;#theta_{#pi} [deg];Entries",
+					   36, 0., 180.);
+
   for ( auto ev : ev_vec ) {
-    std::cout << ev.groupid << std::endl;
+
     reader.ReadSpill(ev.groupid);
     auto &spill_summary = reader.GetSpillSummary();
     auto it_event = spill_summary.BeginTrueEvent();
@@ -133,7 +145,29 @@ void AnalyzeAngle(std::string b2filename,
 
     if ( !ev.chains.empty() ) {      
 
+      bool muon_correct_id_flag = false;
+      int num_proton_water = 0;
+      int num_true_proton_water = 0;
+      int num_pion_water = 0;
+      int num_true_pion_water = 0;
       for ( auto chain : ev.chains ) {
+	if ( chain.particle_flag % 10000 == 13 ) {
+	  if ( chain.particle_flag / 10000 == 13 ) muon_correct_id_flag = true;
+	}
+	else if ( chain.particle_flag % 10000 == 2212 ) {
+	  if ( chain.particle_flag / 10000 == 2212 ) num_true_proton_water++;
+	  num_proton_water++;
+	}
+	else if ( chain.particle_flag % 10000 == 211 ) {
+	  if ( chain.particle_flag / 10000 == 211 ) num_true_pion_water++;
+	  num_pion_water++;
+	}
+      }
+
+
+
+      for ( auto chain : ev.chains ) {
+
 	int particle_id = chain.particle_flag % 10000;
 	int true_particle_id = chain.particle_flag / 10000;
 
@@ -163,47 +197,61 @@ void AnalyzeAngle(std::string b2filename,
 	  theta_deg += 180.;
 	}
 	double cosine = std::cos(theta_deg * TMath::DegToRad());
-	if ( particle_id == true_particle_id ) {
+
+	// For packing evaluation
+	if ( ev.chains.size() == 1 && particle_id == 13 ) {
+	  hist_muon_ang_deg_single->Fill(theta_deg, ev.weight);
+	  hist_muon_ang_cos_single->Fill(cosine, ev.weight);
+	}
+	
+	if ( muon_correct_id_flag ) {
 	  if ( particle_id == 13 ) {
-	    hist_muon_ang_cos->Fill(cosine, ev.weight);
 	    hist_muon_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_muon_ang_cos->Fill(cosine, ev.weight);
+	    hist_mode_muon_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
 	    hist_mode_muon_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	    hist_mode_muon_ang_deg[mode_id]->Fill(theta_deg, ev.weight);	
-	    if ( ev.chains.size() == 1 ) {
-	      hist_muon_ang_cos_single->Fill(cosine, ev.weight);
-	      hist_muon_ang_deg_single->Fill(theta_deg, ev.weight);
+	  }
+	  else if ( particle_id == 2212 ) {
+	    if ( particle_id == true_particle_id ) {
+	      hist_proton_ang_deg->Fill(theta_deg, ev.weight);
+	      hist_proton_ang_cos->Fill(cosine, ev.weight);
+	      hist_mode_proton_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
+	      hist_mode_proton_ang_cos[mode_id]->Fill(cosine, ev.weight);
+	    }
+	    else {
+	      hist_proton_misid_ang_deg->Fill(theta_deg, ev.weight);
+	      hist_proton_misid_ang_cos->Fill(cosine, ev.weight);
+	    }	    
+	  }
+	  else if ( particle_id == 211 ) {
+	    if ( particle_id == true_particle_id ) {
+	      hist_pion_ang_deg->Fill(theta_deg, ev.weight);
+	      hist_pion_ang_cos->Fill(cosine, ev.weight);
+	      hist_mode_pion_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
+	      hist_mode_pion_ang_cos[mode_id]->Fill(cosine, ev.weight);
+	    }
+	    else {
+	      hist_pion_misid_ang_deg->Fill(theta_deg, ev.weight);
+	      hist_pion_misid_ang_cos->Fill(cosine, ev.weight);
 	    }
 	  }
-	  else if ( particle_id == 211 ) {
-	    hist_pion_ang_cos->Fill(cosine, ev.weight);
-	    hist_pion_ang_deg->Fill(theta_deg, ev.weight);
-	    hist_mode_pion_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	    hist_mode_pion_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
-	  }
-	  else if ( particle_id == 2212 ) {
-	    hist_proton_ang_cos->Fill(cosine, ev.weight);
-	    hist_proton_ang_deg->Fill(theta_deg, ev.weight);
-	    hist_mode_proton_ang_cos[mode_id]->Fill(cosine, ev.weight);
-	    hist_mode_proton_ang_deg[mode_id]->Fill(theta_deg, ev.weight);
-	  }
 	}
-	else if ( particle_id != true_particle_id ) {
+	else {
 	  if ( particle_id == 13 ) {
-	    hist_muon_misid_ang_cos->Fill(cosine, ev.weight);
 	    hist_muon_misid_ang_deg->Fill(theta_deg, ev.weight);
-	  }
-	  else if ( particle_id == 211 ) {
-	    hist_pion_misid_ang_cos->Fill(cosine, ev.weight);
-	    hist_pion_misid_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_muon_misid_ang_cos->Fill(cosine, ev.weight);
 	  }
 	  else if ( particle_id == 2212 ) {
-	    hist_proton_misid_ang_cos->Fill(cosine, ev.weight);
-	    hist_proton_misid_ang_deg->Fill(theta_deg, ev.weight);
+	    hist_proton_ang_deg_muon_misid->Fill(theta_deg, ev.weight);
+	    hist_proton_ang_cos_muon_misid->Fill(cosine, ev.weight);
+	  }
+	  else if ( particle_id == 211 ) {
+	    hist_pion_ang_deg_muon_misid->Fill(theta_deg, ev.weight);
+	    hist_pion_ang_cos_muon_misid->Fill(cosine, ev.weight);
 	  }
 	}
       }
-    }
-    
+    }    
   }
 
   outputfile->cd();
@@ -216,6 +264,10 @@ void AnalyzeAngle(std::string b2filename,
 
   hist_muon_misid_ang_cos->Write();
   hist_muon_misid_ang_deg->Write();
+  hist_proton_ang_cos_muon_misid->Write();
+  hist_proton_ang_deg_muon_misid->Write();
+  hist_pion_ang_cos_muon_misid->Write();
+  hist_pion_ang_deg_muon_misid->Write();
   hist_proton_misid_ang_cos->Write();
   hist_proton_misid_ang_deg->Write();
   hist_pion_misid_ang_cos->Write();

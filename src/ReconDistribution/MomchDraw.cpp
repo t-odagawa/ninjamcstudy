@@ -42,7 +42,7 @@ int main (int argc, char *argv[]) {
     int eccid = std::atoi(argv[3]);
     int modeid = std::atoi(argv[4]);
 
-    // input B2 file
+    // input B2 file   
     std::stringstream b2filename_ss;
     b2filename_ss << prefix << "/ninja_mc_h2o_"
 		  << fileid

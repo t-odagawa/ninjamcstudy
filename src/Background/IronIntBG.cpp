@@ -28,7 +28,7 @@ int main (int argc, char* argv[]) {
      logging::trivial::severity >= logging::trivial::info
      );
 
-  BOOST_LOG_TRIVIAL(info) << "==========Proton module background==========";
+  BOOST_LOG_TRIVIAL(info) << "==========Muon neutrino-iron interaction background==========";
 
   if ( argc != 3 ) {
     BOOST_LOG_TRIVIAL(error) << "Usage : " << argv[0]
@@ -43,26 +43,37 @@ int main (int argc, char* argv[]) {
   
   TH1D *hist_recon_vertex_x = new TH1D("hist_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 25, 0, 250.e3);
   TH1D *hist_recon_vertex_y = new TH1D("hist_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 25, 0., 250.e3);
-  TH1D *hist_recon_vertex_z = new TH1D("hist_recon_vertex_z", "Reconstructed depth;z [#mum];Entries", 250, -250.e3, 0.);
+  TH1D *hist_recon_vertex_z = new TH1D("hist_recon_vertex_z", "Reconstructed depth;z [#mum];Entries", 25, -250.e3, 0.);
   TH2D *hist_recon_vertex_xy = new TH2D("hist_recon_vertex_xy", "Reconstructed film position;x [#mum];y [#mum]", 250, 0., 250.e3, 250, 0., 250.e3);
 
-  TH1D *hist_multi = new TH1D("hist_multi", "Multiplicity;# of tracks;Entries", 5, 0.5, 5.5);
+  TH1D *hist_multi = new TH1D("hist_multi", "Multiplicity;# of tracks;Entries", 10, 0.5, 10.5);
   TH2D *hist_multi_z = new TH2D("hist_multi_z", ";# of tracks;Reconstructed depth [#mum]", 250, -250.e3, 0., 5, 0.5, 5.5);
   TH1D *hist_plate_diff = new TH1D("hist_plate_diff", ";Plate difference;Plate difference", 20,-10,10);
 
-  TH1D *hist_fe_bg_pi_mom = new TH1D("hist_fe_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", 50, 0., 1500.);
-  TH1D *hist_fe_bg_pi_mom_mcs = new TH1D("hist_fe_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 50, 0., 1500.);
+  TH1D *hist_multi_p = new TH1D("hist_multi_p", "", 10, -0.5, 9.5);
+  TH1D *hist_multi_pi = new TH1D("hist_multi_pi", "", 10, -0.5, 9.5);
+
+  TH1D *hist_fe_bg_mu_mom = new TH1D("hist_fe_bg_mu_mom", "", 20, 0., 2000.);
+  TH1D *hist_fe_bg_mu_mom_mcs = new TH1D("hist_fe_bg_mu_mom_mcs", "", 20, 0., 2000.);
+  TH1D *hist_fe_bg_mu_mom_range = new TH1D("hist_fe_bg_mu_mom_range", "", 20, 0., 2000.);
+
+  TH1D *hist_fe_bg_mu_mom_mcs_all = new TH1D("hist_fe_bg_mu_mom_mcs_all", "", 20, 0., 2000.);
+
+  TH1D *hist_fe_bg_mu_cos = new TH1D("hist_fe_bg_mu_cos", "", 20, 0., 1.);
+  TH1D *hist_fe_bg_mu_deg = new TH1D("hist_fe_bg_mu_deg", "", 18, 0., 90.);
+
+  TH1D *hist_fe_bg_pi_mom = new TH1D("hist_fe_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_fe_bg_pi_mom_mcs = new TH1D("hist_fe_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
   TH1D *hist_fe_bg_pi_mom_range = new TH1D("hist_fe_bg_pi_mom_range", ";Reconstructed momentum [MeV/c];Entries",
-					   50, 0., 1500.);
-  TH1D *hist_fe_bg_p_mom = new TH1D("hist_fe_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", 50, 0., 1500.);
-  TH1D *hist_fe_bg_p_mom_mcs = new TH1D("hist_fe_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 50, 0., 1500.);
+					   15, 0., 1500.);
+  TH1D *hist_fe_bg_p_mom = new TH1D("hist_fe_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_fe_bg_p_mom_mcs = new TH1D("hist_fe_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
   TH1D *hist_fe_bg_p_mom_range = new TH1D("hist_fe_bg_p_mom_range", ";Reconstructed momentum [MeV/c];Entries",
-					  50, 0., 1500.);
+					  15, 0., 1500.);
   TH1D *hist_fe_bg_pi_cos = new TH1D("hist_fe_bg_pi_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
   TH1D *hist_fe_bg_pi_deg = new TH1D("hist_fe_bg_pi_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
   TH1D *hist_fe_bg_p_cos = new TH1D("hist_fe_bg_p_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
   TH1D *hist_fe_bg_p_deg = new TH1D("hist_fe_bg_p_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
-
 
   TH1D *hist_side_recon_vertex_x = new TH1D("hist_side_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 25, 0, 250.e3);
   TH1D *hist_side_recon_vertex_y = new TH1D("hist_side_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 25, 0., 250.e3);
@@ -93,12 +104,25 @@ int main (int argc, char* argv[]) {
       hist_multi->Fill(ev.chains.size(), ev.weight);
       hist_multi_z->Fill(ev.recon_vertex_position[2], ev.chains.size(), ev.weight);
       hist_plate_diff->Fill(ev.vertex_pl / 1000 - ev.vertex_pl % 1000, ev.weight);
-      //if ( ev.vertex_pl / 1000 - ev.vertex_pl % 1000 == 0 )
-	//std::cout << ev.groupid << std::endl;
+
+      int num_proton = 0;
+      int num_pion = 0;
       for ( auto chain : ev.chains ) {
-	if ( chain.particle_flag % 10000 == 13 ) continue;
+	int recon_particle_id = chain.particle_flag % 10000;
+	if ( recon_particle_id == 2212 ) num_proton++;
+	else if ( recon_particle_id == 211 ) num_pion++;
+      }
+
+      hist_multi_p->Fill((double)num_proton, ev.weight);
+      hist_multi_pi->Fill((double)num_pion, ev.weight);
+
+      // ループが分かれているのは突貫工事だから
+      for ( auto chain : ev.chains ) {
+
+	int recon_particle_id = chain.particle_flag % 10000;
+
 	double momentum = -1.;
-	double ax = 0.; 
+	double ax = 0.;
 	double ay = 0.;
 	if ( chain.direction == 1 ) {
 	  ax = chain.base.back().ax;
@@ -108,6 +132,7 @@ int main (int argc, char* argv[]) {
 	  ax = chain.base.front().ax;
 	  ay = chain.base.front().ay;
 	}
+	
 	double thetax = std::atan(ax);
 	double thetay = std::atan(ay);
 	thetax -= neutrino_beam_thetax;
@@ -119,7 +144,37 @@ int main (int argc, char* argv[]) {
 	  theta_deg += 180.;
 	}
 	double cosine = std::cos(theta_deg * TMath::DegToRad());
-	if ( chain.particle_flag % 10000 == 211 ) {
+
+	if ( recon_particle_id == 13 ) {
+	  if ( chain.stop_flag == 1 ) {
+	    momentum = chain.bm_range_mom;
+	    hist_fe_bg_mu_mom_range->Fill(momentum, ev.weight);
+	  }
+	  else if ( chain.stop_flag == 0 ) {
+	    momentum = chain.ecc_mcs_mom[0];
+	    hist_fe_bg_mu_mom_mcs->Fill(momentum, ev.weight);
+	  }
+	  hist_fe_bg_mu_mom->Fill(momentum, ev.weight);
+	  hist_fe_bg_mu_deg->Fill(theta_deg, ev.weight);
+	  hist_fe_bg_mu_cos->Fill(cosine, ev.weight);
+
+	  hist_fe_bg_mu_mom_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
+
+	}
+	else if ( recon_particle_id == 2212 ) {
+	  if ( chain.stop_flag == 0 ) {
+	    momentum = chain.ecc_mcs_mom[1];
+	    hist_fe_bg_p_mom_mcs->Fill(momentum, ev.weight);
+	  }
+	  else if ( chain.stop_flag == 2 ) {
+	    momentum = chain.ecc_range_mom[1];
+	    hist_fe_bg_p_mom_range->Fill(momentum, ev.weight);
+	  }
+	  hist_fe_bg_p_mom->Fill(momentum, ev.weight);
+	  hist_fe_bg_p_cos->Fill(cosine, ev.weight);
+	  hist_fe_bg_p_deg->Fill(theta_deg, ev.weight);
+	}
+	else if ( recon_particle_id == 211 ) {
 	  if ( chain.stop_flag == 0 ) {
 	    momentum = chain.bm_curvature_mom;
 	    hist_fe_bg_pi_mom->Fill(momentum, ev.weight);
@@ -132,20 +187,6 @@ int main (int argc, char* argv[]) {
 	  }
 	  hist_fe_bg_pi_cos->Fill(cosine, ev.weight);
 	  hist_fe_bg_pi_deg->Fill(theta_deg, ev.weight);
-	}
-	else if ( chain.particle_flag % 10000 == 2212 ) {
-	  if ( chain.stop_flag == 0 ) {
-	    momentum = chain.ecc_mcs_mom[1];
-	    hist_fe_bg_p_mom->Fill(momentum, ev.weight);
-	    hist_fe_bg_p_mom_mcs->Fill(momentum, ev.weight);
-	  }
-	  else if ( chain.stop_flag == 2 ) {
-	    momentum = chain.ecc_range_mom[1];
-	    hist_fe_bg_p_mom->Fill(momentum, ev.weight);
-	    hist_fe_bg_p_mom_range->Fill(momentum, ev.weight);
-	  }
-	  hist_fe_bg_p_cos->Fill(cosine, ev.weight);
-	  hist_fe_bg_p_deg->Fill(theta_deg, ev.weight);
 	}
       }
     }
@@ -177,6 +218,17 @@ int main (int argc, char* argv[]) {
   hist_multi_z->Write();
   hist_plate_diff->Write();
 
+  hist_multi_p->Write();
+  hist_multi_pi->Write();
+
+  hist_fe_bg_mu_mom->Write();
+  hist_fe_bg_mu_mom_mcs->Write();
+  hist_fe_bg_mu_mom_range->Write();
+  hist_fe_bg_mu_cos->Write();
+  hist_fe_bg_mu_deg->Write();
+
+  hist_fe_bg_mu_mom_mcs_all->Write();
+
   hist_fe_bg_pi_mom->Write();
   hist_fe_bg_pi_mom_mcs->Write();
   hist_fe_bg_pi_mom_range->Write();
@@ -194,6 +246,7 @@ int main (int argc, char* argv[]) {
   hist_side_recon_vertex_xy->Write();
   hist_side_multi->Write();
   hist_side_multi_z->Write();
+
   hist_pene_recon_vertex_x->Write();
   hist_pene_recon_vertex_y->Write();
   hist_pene_recon_vertex_z->Write();
@@ -201,5 +254,7 @@ int main (int argc, char* argv[]) {
   hist_pene_multi->Write();
   hist_pene_multi_z->Write();
   ofile->Close();
+
+  std::exit(0);
 
 }

@@ -19,6 +19,10 @@
 #include <B2VertexSummary.hh>
 
 #include <McsClass.hpp>
+#include <McsConst.hpp>
+#include <McsFunction.hpp>
+#include <PidData.hpp>
+#include <PidFunction.hpp>
 
 #include "AnalyzePid.hpp"
 
@@ -33,7 +37,7 @@ void AnalyzePid(std::string b2filename,
 
   // input B2 file
   B2Reader reader(b2filename);
-  
+   
   // input momch file
   if ( !fs::exists(momchfilename) ) {
     throw std::runtime_error("File not found : " + momchfilename);
@@ -89,8 +93,9 @@ void AnalyzePid(std::string b2filename,
 					 20, 0, 1);
   }
 
-  
-  
+  const std::string data_path = "/home/t2k/odagawa/NinjaMomentumRecon/data";
+  PidData pid_data_(data_path);
+  PidFunction pid_function_(pid_data_);
 
   for ( auto ev : ev_vec ) {
     
@@ -123,19 +128,20 @@ void AnalyzePid(std::string b2filename,
 	  ax = chain.base.front().ax;
 	  ay = chain.base.front().ay;
 	}
-	else continue; // direction should be 0 or 1
+	else continue; // direction should be +/-1
+	double pbeta = chain.ecc_mcs_mom[0];
+	pbeta = CalculatePBetaFromMomentum(pbeta, MCS_MUON_MASS);
 	double tangent = TMath::Hypot(ax, ay);
 
 	// likelihood ratio
+	double vph_mean_pi = pid_function_.CalcVphMuon(pbeta, tangent);
+	double vph_mean_p = pid_function_.CalcVphProton(pbeta, tangent);
+
 	double l_ratio;
-	double l_pi = TMath::Gaus(chain.muon_likelihood,
-				  0., 1., kTRUE);
-	double l_p = TMath::Gaus(chain.proton_likelihood,
-				 0., 1., kTRUE);
-	if ( l_pi < 0. ) { l_ratio = 1.; }
-	else if ( l_p < 0. ) { l_ratio = 0.; }
+	if ( vph < vph_mean_pi ) l_ratio = 0.999;
+	else if ( vph > vph_mean_p ) l_ratio = 0.;
 	else {
-	  l_ratio = l_pi / (l_pi + l_p);
+	  l_ratio = chain.muon_likelihood / (chain.muon_likelihood + chain.proton_likelihood);
 	}
 
 	hist_likelihood_ratio->Fill(l_ratio, ev.weight);

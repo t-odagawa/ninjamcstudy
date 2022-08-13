@@ -123,6 +123,14 @@ if (Connection_FOUND)
    include_directories("${CONNECTION_INCLUDE_DIR}")
 endif()
 
+# PID library
+find_package(Pid REQUIRED)
+if (Pid_FOUND)
+   message(STATUS "Pid library -- found")
+   message(STATUS "Pid library include dir : ${PID_INCLUDE_DIR}")
+   include_directories(("${PID_INCLUDE_DIR}"))
+endif()
+
 ################ Libraries ################
 
 set(NINJAMC_LIB_PATH ${CMAKE_SOURCE_DIR}/lib)
@@ -138,6 +146,7 @@ if (NOT APPLE)
 	    ${NTBM_LIBRARY}
 	    ${MCS_LIBRARY}
 	    ${CONNECTION_LIBRARY}
+	    ${PID_LIBRARY}
             )
 else ()
     list(APPEND NINJA_MCSTUDY_LIBRARIES
@@ -151,6 +160,7 @@ else ()
 	    ${NTBM_LIBRARY}
 	    ${MCS_LIBRARY}
 	    ${CONNECTION_LIBRARY}
+	    ${PID_LIBRARY}
             )
 endif ()
 
@@ -182,7 +192,7 @@ endif ()
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY} ${MCS_LIBRARY} ${CONNECTION_LIBRARY})
+set(NINJA_MCSTUDY_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${B2MC_LIBRARY} ${NTBM_LIBRARY} ${MCS_LIBRARY} ${CONNECTION_LIBRARY} ${PID_LIBRARY})
 
 ################ Sub Directories ################
 

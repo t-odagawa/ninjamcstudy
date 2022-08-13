@@ -28,7 +28,7 @@ int main (int argc, char* argv[]) {
      logging::trivial::severity >= logging::trivial::info
      );
 
-  BOOST_LOG_TRIVIAL(info) << "==========Anti Muon neutrino-water interaction background==========";
+  BOOST_LOG_TRIVIAL(info) << "==========Upstream WAGASCI background==========";
 
   if ( argc != 3 ) {
     BOOST_LOG_TRIVIAL(error) << "Usage : " << argv[0]
@@ -48,33 +48,31 @@ int main (int argc, char* argv[]) {
 
   TH1D *hist_multi = new TH1D("hist_multi", "Multiplicity;# of tracks;Entries", 10, 0.5, 10.5);
   TH2D *hist_multi_z = new TH2D("hist_multi_z", ";# of tracks;Reconstructed depth [#mum]", 250, -250.e3, 0., 5, 0.5, 5.5);
-  TH1D *hist_plate_diff = new TH1D("hist_plate_diff", ";Plate difference;Plate difference", 20,-10,10);
-  TH1D *hist_charge = new TH1D("hist_charge", ";Reconstructed charge;Entries",3, -1.5, 1.5);
 
   TH1D *hist_multi_p = new TH1D("hist_multi_p", "", 10, -0.5, 9.5);
   TH1D *hist_multi_pi = new TH1D("hist_multi_pi", "", 10, -0.5, 9.5);
 
-  TH1D *hist_anu_bg_mu_mom = new TH1D("hist_anu_bg_mu_mom", "", 20, 0., 2000.);
-  TH1D *hist_anu_bg_mu_mom_mcs = new TH1D("hist_anu_bg_mu_mom_mcs", "", 20, 0., 2000.);
-  TH1D *hist_anu_bg_mu_mom_range = new TH1D("hist_anu_bg_mu_mom_range", "", 20, 0., 2000.);
+  TH1D *hist_uwg_bg_mu_mom = new TH1D("hist_uwg_bg_mu_mom", "", 20, 0., 2000.);
+  TH1D *hist_uwg_bg_mu_mom_mcs = new TH1D("hist_uwg_bg_mu_mom_mcs", "", 20, 0., 2000.);
+  TH1D *hist_uwg_bg_mu_mom_range = new TH1D("hist_uwg_bg_mu_mom_range", "", 20, 0., 2000.);
 
-  TH1D *hist_anu_bg_mu_mom_mcs_all = new TH1D("hist_anu_bg_mu_mom_mcs_all", "", 20, 0., 2000.);
-    
-  TH1D *hist_anu_bg_mu_cos = new TH1D("hist_anu_bg_mu_cos", "", 20, 0., 1.);
-  TH1D *hist_anu_bg_mu_deg = new TH1D("hist_anu_bg_mu_deg", "", 18, 0., 90.);
+  TH1D *hist_uwg_bg_mu_mom_mcs_all = new TH1D("hist_uwg_bg_mu_mom_mcs_all", "", 20, 0., 2000.);
 
-  TH1D *hist_anu_bg_pi_mom = new TH1D("hist_anu_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_anu_bg_pi_mom_mcs = new TH1D("hist_anu_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_anu_bg_pi_mom_range = new TH1D("hist_anu_bg_pi_mom_range", ";Reconstructed momentum [MeV/c];Entries",
+  TH1D *hist_uwg_bg_mu_cos = new TH1D("hist_uwg_bg_mu_cos", "", 20, 0., 1.);
+  TH1D *hist_uwg_bg_mu_deg = new TH1D("hist_uwg_bg_mu_deg", "", 18, 0., 90.);
+
+  TH1D *hist_uwg_bg_pi_mom = new TH1D("hist_uwg_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_uwg_bg_pi_mom_mcs = new TH1D("hist_uwg_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_uwg_bg_pi_mom_range = new TH1D("hist_uwg_bg_pi_mom_range", ";Reconstructed momentum [MeV/c];Entries",
 					   15, 0., 1500.);
-  TH1D *hist_anu_bg_p_mom = new TH1D("hist_anu_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_anu_bg_p_mom_mcs = new TH1D("hist_anu_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_anu_bg_p_mom_range = new TH1D("hist_anu_bg_p_mom_range", ";Reconstructed momentum [MeV/c];Entries",
+  TH1D *hist_uwg_bg_p_mom = new TH1D("hist_uwg_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_uwg_bg_p_mom_mcs = new TH1D("hist_uwg_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_uwg_bg_p_mom_range = new TH1D("hist_uwg_bg_p_mom_range", ";Reconstructed momentum [MeV/c];Entries",
 					  15, 0., 1500.);
-  TH1D *hist_anu_bg_pi_cos = new TH1D("hist_anu_bg_pi_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
-  TH1D *hist_anu_bg_pi_deg = new TH1D("hist_anu_bg_pi_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
-  TH1D *hist_anu_bg_p_cos = new TH1D("hist_anu_bg_p_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
-  TH1D *hist_anu_bg_p_deg = new TH1D("hist_anu_bg_p_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
+  TH1D *hist_uwg_bg_pi_cos = new TH1D("hist_uwg_bg_pi_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
+  TH1D *hist_uwg_bg_pi_deg = new TH1D("hist_uwg_bg_pi_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
+  TH1D *hist_uwg_bg_p_cos = new TH1D("hist_uwg_bg_p_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
+  TH1D *hist_uwg_bg_p_deg = new TH1D("hist_uwg_bg_p_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
 
   TH1D *hist_side_recon_vertex_x = new TH1D("hist_side_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 25, 0, 250.e3);
   TH1D *hist_side_recon_vertex_y = new TH1D("hist_side_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 25, 0., 250.e3);
@@ -104,7 +102,6 @@ int main (int argc, char* argv[]) {
       hist_recon_vertex_xy->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
       hist_multi->Fill(ev.chains.size(), ev.weight);
       hist_multi_z->Fill(ev.recon_vertex_position[2], ev.chains.size(), ev.weight);
-      hist_plate_diff->Fill(ev.vertex_pl / 1000 - ev.vertex_pl % 1000, ev.weight);
 
       int num_proton = 0;
       int num_pion = 0;
@@ -149,46 +146,45 @@ int main (int argc, char* argv[]) {
 	if ( recon_particle_id == 13 ) {
 	  if ( chain.stop_flag == 1 ) {
 	    momentum = chain.bm_range_mom;
-	    hist_anu_bg_mu_mom_range->Fill(momentum, ev.weight);
+	    hist_uwg_bg_mu_mom_range->Fill(momentum, ev.weight);
 	  }
 	  else if ( chain.stop_flag == 0 ) {
 	    momentum = chain.ecc_mcs_mom[0];
-	    hist_anu_bg_mu_mom_mcs->Fill(momentum, ev.weight);
+	    hist_uwg_bg_mu_mom_mcs->Fill(momentum, ev.weight);
 	  }
-	  hist_anu_bg_mu_mom->Fill(momentum, ev.weight);
-	  hist_anu_bg_mu_deg->Fill(theta_deg, ev.weight);
-	  hist_anu_bg_mu_cos->Fill(cosine, ev.weight);
-	  hist_charge->Fill(chain.charge_sign, ev.weight);
+	  hist_uwg_bg_mu_mom->Fill(momentum, ev.weight);
+	  hist_uwg_bg_mu_deg->Fill(theta_deg, ev.weight);
+	  hist_uwg_bg_mu_cos->Fill(cosine, ev.weight);
 
-	  hist_anu_bg_mu_mom_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
+	  hist_uwg_bg_mu_mom_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
 
 	}
 	else if ( recon_particle_id == 2212 ) {
 	  if ( chain.stop_flag == 0 ) {
 	    momentum = chain.ecc_mcs_mom[1];
-	    hist_anu_bg_p_mom_mcs->Fill(momentum, ev.weight);
+	    hist_uwg_bg_p_mom_mcs->Fill(momentum, ev.weight);
 	  }
 	  else if ( chain.stop_flag == 2 ) {
 	    momentum = chain.ecc_range_mom[1];
-	    hist_anu_bg_p_mom_range->Fill(momentum, ev.weight);
+	    hist_uwg_bg_p_mom_range->Fill(momentum, ev.weight);
 	  }
-	  hist_anu_bg_p_mom->Fill(momentum, ev.weight);
-	  hist_anu_bg_p_cos->Fill(cosine, ev.weight);
-	  hist_anu_bg_p_deg->Fill(theta_deg, ev.weight);
+	  hist_uwg_bg_p_mom->Fill(momentum, ev.weight);
+	  hist_uwg_bg_p_cos->Fill(cosine, ev.weight);
+	  hist_uwg_bg_p_deg->Fill(theta_deg, ev.weight);
 	}
 	else if ( recon_particle_id == 211 ) {
 	  if ( chain.stop_flag == 0 ) {
 	    momentum = chain.bm_curvature_mom;
-	    hist_anu_bg_pi_mom->Fill(momentum, ev.weight);
-	    hist_anu_bg_pi_mom_mcs->Fill(momentum, ev.weight);
+	    hist_uwg_bg_pi_mom->Fill(momentum, ev.weight);
+	    hist_uwg_bg_pi_mom_mcs->Fill(momentum, ev.weight);
 	  }
 	  else if ( chain.stop_flag == 2 ) {
 	    momentum = chain.ecc_range_mom[0];
-	    hist_anu_bg_pi_mom->Fill(momentum, ev.weight);
-	    hist_anu_bg_pi_mom_range->Fill(momentum, ev.weight);
+	    hist_uwg_bg_pi_mom->Fill(momentum, ev.weight);
+	    hist_uwg_bg_pi_mom_range->Fill(momentum, ev.weight);
 	  }
-	  hist_anu_bg_pi_cos->Fill(cosine, ev.weight);
-	  hist_anu_bg_pi_deg->Fill(theta_deg, ev.weight);
+	  hist_uwg_bg_pi_cos->Fill(cosine, ev.weight);
+	  hist_uwg_bg_pi_deg->Fill(theta_deg, ev.weight);
 	}
       }
     }
@@ -218,29 +214,28 @@ int main (int argc, char* argv[]) {
   hist_recon_vertex_xy->Write();
   hist_multi->Write();
   hist_multi_z->Write();
-  hist_plate_diff->Write();
 
   hist_multi_p->Write();
   hist_multi_pi->Write();
 
-  hist_anu_bg_mu_mom->Write();
-  hist_anu_bg_mu_mom_mcs->Write();
-  hist_anu_bg_mu_mom_range->Write();
-  hist_anu_bg_mu_cos->Write();
-  hist_anu_bg_mu_deg->Write();
+  hist_uwg_bg_mu_mom->Write();
+  hist_uwg_bg_mu_mom_mcs->Write();
+  hist_uwg_bg_mu_mom_range->Write();
+  hist_uwg_bg_mu_cos->Write();
+  hist_uwg_bg_mu_deg->Write();
 
-  hist_anu_bg_mu_mom_mcs_all->Write();
-  
-  hist_anu_bg_pi_mom->Write();
-  hist_anu_bg_pi_mom_mcs->Write();
-  hist_anu_bg_pi_mom_range->Write();
-  hist_anu_bg_p_mom->Write();
-  hist_anu_bg_p_mom_mcs->Write();
-  hist_anu_bg_p_mom_range->Write();
-  hist_anu_bg_pi_cos->Write();
-  hist_anu_bg_pi_deg->Write();
-  hist_anu_bg_p_cos->Write();
-  hist_anu_bg_p_deg->Write();
+  hist_uwg_bg_mu_mom_mcs_all->Write();
+
+  hist_uwg_bg_pi_mom->Write();
+  hist_uwg_bg_pi_mom_mcs->Write();
+  hist_uwg_bg_pi_mom_range->Write();
+  hist_uwg_bg_p_mom->Write();
+  hist_uwg_bg_p_mom_mcs->Write();
+  hist_uwg_bg_p_mom_range->Write();
+  hist_uwg_bg_pi_cos->Write();
+  hist_uwg_bg_pi_deg->Write();
+  hist_uwg_bg_p_cos->Write();
+  hist_uwg_bg_p_deg->Write();
 
   hist_side_recon_vertex_x->Write();
   hist_side_recon_vertex_y->Write();
