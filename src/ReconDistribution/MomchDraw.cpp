@@ -26,9 +26,9 @@ int main (int argc, char *argv[]) {
      //logging::trivial::severity >= logging::trivial::debug
      );
 
-  if ( argc != 5 ) {
+  if ( argc != 7 ) {
     BOOST_LOG_TRIVIAL(error) << "Usage : " << argv[0]
-			     << " <file prefix> <fileid> <ecc> <mode>";
+			     << " <file prefix> <fileid> <ecc> <mode> <systematics> <plus/minus/nominal>";
     std::exit(1);
   }
 
@@ -42,6 +42,19 @@ int main (int argc, char *argv[]) {
     int eccid = std::atoi(argv[3]);
     int modeid = std::atoi(argv[4]);
 
+    std::string systematics = argv[5];
+    std::string variation = argv[6];
+    std::string momchdir;
+    std::string outputdir;
+    if ( systematics == "0" || variation == "nominal" ) {
+      momchdir = "/momch";
+      outputdir="/output";
+    }
+    else {
+      momchdir = "/momch_" + systematics + "/" + variation;
+      outputdir = "/output_" + systematics + "/" + variation;
+    }
+
     // input B2 file   
     std::stringstream b2filename_ss;
     b2filename_ss << prefix << "/ninja_mc_h2o_"
@@ -51,7 +64,9 @@ int main (int argc, char *argv[]) {
 
     // input momch file
     std::stringstream momchfilename_ss;
-    momchfilename_ss << prefix << "/momch/momch_ecc"
+    // momchfilename_ss << prefix << "/momch_mcs_scale_syst/minus/momch_ecc"
+    // momchfilename_ss << prefix << "/momch/momch_ecc"
+    momchfilename_ss << prefix << momchdir << "/momch_ecc"
 		     << eccid << "_" << fileid;
     if ( modeid == 1 || modeid == 5 ) momchfilename_ss << "_addbm.momch";
     else if ( modeid == 0 || modeid == 2 || modeid == 3 || modeid == 4 ||
@@ -60,7 +75,9 @@ int main (int argc, char *argv[]) {
 
     // output file
     std::stringstream outputfilename_ss;
-    outputfilename_ss << prefix << "/output/output_mode"
+    // outputfilename_ss << prefix << "/output_mcs_scale_syst/minus/output_mode"
+    // outputfilename_ss << prefix << "/output/output_mode"
+    outputfilename_ss << prefix << outputdir << "/output_mode"
 		      << modeid << "_" << fileid << ".root";
     std::string outputfilename = outputfilename_ss.str();
 

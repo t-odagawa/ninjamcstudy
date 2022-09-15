@@ -45,14 +45,15 @@ void AnalyzeMultiplicity(std::string b2filename,
   BOOST_LOG_TRIVIAL(info) << "Output filename : " << outputfilename;
 
   TH1D *hist_total_multi = new TH1D("hist_total_multi", "Total multiplicity;# of tracks;Entries",
-				    10, 0.5, 10.5);
+				    total_multi_bin_size - 1, total_multi_bins);
   TH2D *hist_total_multi_recon_true = new TH2D("hist_total_multi_recon_true", "Multiplicity;True multiplicity;Reconstructed multiplicity",
-					       10, 0.5, 10.5, 10, 0.5, 10.5);
+					       total_multi_bin_size - 1, total_multi_bins,
+					       total_multi_bin_size - 1, total_multi_bins);
 
   TH1D *hist_water_total_multi = new TH1D("hist_water_total_multi", "Total multiplicity (Water);# of tracks;Entries",
-					  10, 0.5, 10.5);
+					  total_multi_bin_size - 1, total_multi_bins);
   TH1D *hist_iron_total_multi = new TH1D("hist_iron_total_multi", "Total multiplicity (Iron);# of tracks;Entries",
-					 10, 0.5, 10.5);
+					 total_multi_bin_size - 1, total_multi_bins);
 
 
   // Muon is correctly id-ed
@@ -61,10 +62,12 @@ void AnalyzeMultiplicity(std::string b2filename,
   TH1D *hist_water_mode_proton_multi[num_ninja_mode];
   TH1D *hist_water_mode_pion_multi[num_ninja_mode];
   for ( int i = 0; i < num_ninja_mode; i++ ) {
-    hist_water_mode_multi[i] = new TH1D(Form("hist_water_mode_multi_%d", i), "", 10, 0.5, 10.5);
-    hist_iron_mode_multi[i] = new TH1D(Form("hist_iron_mode_multi_%d", i), "", 10, 0.5, 10.5);
-    hist_water_mode_proton_multi[i] = new TH1D(Form("hist_water_mode_proton_multi_%d", i),"", 10, -0.5, 9.5);
-    hist_water_mode_pion_multi[i] = new TH1D(Form("hist_water_mode_pion_multi_%d", i),"", 10, -0.5, 9.5);
+    hist_water_mode_multi[i] = new TH1D(Form("hist_water_mode_multi_%d", i), "", total_multi_bin_size - 1, total_multi_bins);
+    hist_iron_mode_multi[i] = new TH1D(Form("hist_iron_mode_multi_%d", i), "", total_multi_bin_size - 1, total_multi_bins);
+    hist_water_mode_proton_multi[i] = new TH1D(Form("hist_water_mode_proton_multi_%d", i),"",
+					       hadron_multi_bin_size - 1, hadron_multi_bins);
+    hist_water_mode_pion_multi[i] = new TH1D(Form("hist_water_mode_pion_multi_%d", i),"",
+					     hadron_multi_bin_size - 1, hadron_multi_bins);
     hist_water_mode_multi[i]->SetFillColor(mode_color[i]);
     hist_iron_mode_multi[i]->SetFillColor(mode_color[i]);
     hist_water_mode_proton_multi[i]->SetFillColor(mode_color[i]);
@@ -77,21 +80,32 @@ void AnalyzeMultiplicity(std::string b2filename,
 
   // Muon is mis-id-ed
   TH1D *hist_water_multi_muon_misid = new TH1D("hist_water_multi_muon_misid",
-					       "", 10, 0.5, 10.5);
+					       "", total_multi_bin_size - 1, total_multi_bins);
   TH1D *hist_water_proton_multi_muon_misid = new TH1D("hist_water_proton_multi_muon_misid",
-						      "", 10, -0.5, 9.5);
+						      "", hadron_multi_bin_size - 1, hadron_multi_bins);
   TH1D *hist_water_pion_multi_muon_misid = new TH1D("hist_water_pion_multi_muon_misid",
-						    "", 10, -0.5, 9.5);
+						    "", hadron_multi_bin_size - 1, hadron_multi_bins);
 
   // Muon is correctly id-ed but partner is not
   TH1D *hist_water_proton_misid_multi = new TH1D("hist_water_proton_misid_multi",
 						 "Proton multiplicity (Water);# of tracks;Entries",
-						 10, -0.5, 9.5);
+						 hadron_multi_bin_size - 1, hadron_multi_bins);
   TH1D *hist_water_pion_misid_multi = new TH1D("hist_water_pion_misid_multi",
 					       "Pion multiplicity (Water);# of tracks;Entries",
-					       10, -0.5, 9.5);
+					       hadron_multi_bin_size - 1, hadron_multi_bins);
   // charge check
   TH1D *hist_recon_charge = new TH1D("hist_recon_charge", "Charge ID;Reconstructed charge sign;Entries", 3, -1.5, 1.5);
+
+
+  // For flux systematic uncertainty study
+  // mis-pid もそれぞれいるかも？
+  TH2D *hist_flux = new TH2D("hist_flux", ";# of tracks;E_{#nu} [GeV]",
+			     total_multi_bin_size - 1, total_multi_bins, nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_p = new TH2D("hist_flux_p", ";# of protons;E_{#nu} [GeV]",
+			       hadron_multi_bin_size - 1, hadron_multi_bins, nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_pi = new TH2D("hist_flux_pi", ";# of pions;E_{#nu} [GeV]",
+				hadron_multi_bin_size - 1, hadron_multi_bins, nu_ene_bin_size - 1, nu_ene_bins);
+  
 
   for ( auto ev : ev_vec ) {
 
@@ -130,16 +144,21 @@ void AnalyzeMultiplicity(std::string b2filename,
 	
 	if ( muon_correct_id_flag ) {
 	  hist_water_mode_multi[mode_id]->Fill(ev.chains.size(), ev.weight);
+	  hist_flux->Fill(ev.chains.size(), ev.nu_energy / 1000., ev.weight);
 
 	  if ( num_proton_water == num_true_proton_water &&
-	       num_proton_water + num_pion_water + 1 == ev.chains.size() )
+	       num_proton_water + num_pion_water + 1 == ev.chains.size() ) {
 	    hist_water_mode_proton_multi[mode_id]->Fill((double)num_proton_water, ev.weight);
+	    hist_flux_p->Fill((double)num_proton_water, ev.nu_energy / 1000., ev.weight);
+	  }
 	  else 
 	    hist_water_proton_misid_multi->Fill((double)num_proton_water, ev.weight);
 	  
 	  if ( num_pion_water == num_true_pion_water &&
-	       num_proton_water + num_pion_water + 1 == ev.chains.size() )
+	       num_proton_water + num_pion_water + 1 == ev.chains.size() ) {
 	    hist_water_mode_pion_multi[mode_id]->Fill((double)num_pion_water, ev.weight);
+	    hist_flux_pi->Fill((double)num_pion_water, ev.nu_energy / 1000., ev.weight);
+	  }
 	  else
 	    hist_water_pion_misid_multi->Fill((double)num_pion_water, ev.weight);
 	}
@@ -175,6 +194,11 @@ void AnalyzeMultiplicity(std::string b2filename,
   hist_water_proton_misid_multi->Write();
   hist_water_pion_misid_multi->Write();
   hist_recon_charge->Write();
+
+  hist_flux->Write();
+  hist_flux_p->Write();
+  hist_flux_pi->Write();
+
   outputfile->Close();
   
 }

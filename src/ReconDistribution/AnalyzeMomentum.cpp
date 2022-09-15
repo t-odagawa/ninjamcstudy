@@ -47,13 +47,13 @@ void AnalyzeMomentum(std::string b2filename,
 
   TH1D *hist_muon_mom = new TH1D("hist_muon_mom",
 				 "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
-				 20, 0., 2000.);
+				 muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_mom_mcs = new TH1D("hist_muon_mom_mcs",
 				     "Muon MCS reconstructed momentum;p_{#mu, MCS} [MeV/c];Entries",
-				     20, 0., 2000.);
+				     muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_mom_range = new TH1D("hist_muon_mom_range",
 				       "Muon range reconstructed momentum;p_{#mu, range};Entries",
-				       20, 0., 2000.);
+				       muon_mom_bin_size - 1, muon_mom_bins);
   TH2D *hist_muon_mom_recon_true = new TH2D("hist_muon_mom_recon_true",
 					    "Muon momentum;p_{#mu, true} [MeV/c];p_{#mu, recon} [MeV/c]",
 					    50, 0., 2000., 50, 0., 2000.);
@@ -65,28 +65,28 @@ void AnalyzeMomentum(std::string b2filename,
 						  50, 0., 2000., 50, 0., 2000.);
 
   TH1D *hist_muon_mom_mcs_all = new TH1D("hist_muon_mom_mcs_all",
-					 "", 20, 0., 2000.);
+					 "", muon_mom_bin_size - 1, muon_mom_bins);
   TH2D *hist_muon_mom_recon_true_mcs_all = new TH2D("hist_muon_mom_recon_true_mcs_all",
 						    "", 50, 0., 2000., 50, 0., 2000.);
 
   TH1D *hist_pion_mom = new TH1D("hist_pion_mom",
 				 "Pion reconstructed momentum;p_{#pi} [MeV/c];Entries",
-				 15, 0., 1500.);
+				 hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_mom_mcs = new TH1D("hist_pion_mom_mcs",
 				     "Pion MCS reconstructed momentum;p_{#pi, MCS} [MeV/c];Entries",
-				     15, 0., 1500.);
+				     hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_mom_range = new TH1D("hist_pion_mom_range",
 				       "Pion range reconstructed momentum;p_{#pi, range} [MeV/c];Entries",
-				       15, 0., 1500.);
+				       hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_mom = new TH1D("hist_proton_mom",
 				   "Proton reconstructed momentum;p_{p} [MeV/c];Entries",
-				   15, 0., 1500.);
+				   hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_mom_mcs = new TH1D("hist_proton_mom_mcs",
 				       "Proton MCS reconstructed momentum;p_{p, MCS} [MeV/c];Entries",
-				       15, 0., 1500.);
+				       hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_mom_range = new TH1D("hist_proton_mom_range",
 					 "Proton range reconstructed momentum;p_{p, range} [MeV/c];Entries",
-					 15, 0., 1500.);
+					 hadron_mom_bin_size - 1, hadron_mom_bins);
   TH2D *hist_pion_mom_recon_true = new TH2D("hist_pion_mom_recon_true",
 					    "Pion momentum;p_{#pi, true} [MeV/c];p_{#pi, recon} [MeV/c]",
 					    50, 0., 1500., 50, 0., 1500.);
@@ -110,13 +110,13 @@ void AnalyzeMomentum(std::string b2filename,
 					  50, 0., 1500., 50, 0., 1500);
 
   TH1D *hist_muon_mom_single = new TH1D("hist_muon_mom_single", "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
-					20, 0., 2000.);
+					muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_mom_single_mcs = new TH1D("hist_muon_mom_single_mcs", "Muon reconstructed momentum;p_{#mu, MCS} [MeV/c];Entries",
-					    20, 0., 2000.);
+					    muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_mom_single_range = new TH1D("hist_muon_mom_single_range", "Muon reconstructed momentum;p_{#mu, range} [MeV/c];Entries",
-					      20, 0., 2000.);
+					      muon_mom_bin_size - 1, muon_mom_bins);
 
-  TH1D *hist_muon_mom_single_mcs_all = new TH1D("hist_muon_mom_single_mcs_all","", 20, 0., 2000.);
+  TH1D *hist_muon_mom_single_mcs_all = new TH1D("hist_muon_mom_single_mcs_all","", muon_mom_bin_size - 1, muon_mom_bins);
 
   // Muon is correctly id-ed
   TH1D *hist_mode_muon_mom[num_ninja_mode];
@@ -132,35 +132,35 @@ void AnalyzeMomentum(std::string b2filename,
   TH1D *hist_mode_muon_mom_mcs_all[num_ninja_mode];
 
   for ( int i = 0; i < num_ninja_mode; i++ ) {
-    hist_mode_muon_mom[i] = new TH1D(Form("hist_muon_mom_%d", i), "", 20, 0., 2000.);
+    hist_mode_muon_mom[i] = new TH1D(Form("hist_muon_mom_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
     hist_mode_muon_mom[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom[i]->SetFillStyle(mode_style[i]);
-    hist_mode_muon_mom_mcs[i] = new TH1D(Form("hist_muon_mom_mcs_%d", i), "", 20, 0., 2000.);
+    hist_mode_muon_mom_mcs[i] = new TH1D(Form("hist_muon_mom_mcs_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
     hist_mode_muon_mom_mcs[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom_mcs[i]->SetFillStyle(mode_style[i]);
-    hist_mode_muon_mom_range[i] = new TH1D(Form("hist_muon_mom_range_%d", i), "", 20, 0., 2000.);
+    hist_mode_muon_mom_range[i] = new TH1D(Form("hist_muon_mom_range_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
     hist_mode_muon_mom_range[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom_range[i]->SetFillStyle(mode_style[i]);
-    hist_mode_pion_mom[i] = new TH1D(Form("hist_pion_mom_%d", i), "", 15, 0., 1500.);
+    hist_mode_pion_mom[i] = new TH1D(Form("hist_pion_mom_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_pion_mom[i]->SetFillColor(mode_color[i]);
     hist_mode_pion_mom[i]->SetFillStyle(mode_style[i]);
-    hist_mode_pion_mom_mcs[i] = new TH1D(Form("hist_pion_mom_mcs_%d", i), "", 15, 0., 1500.);
+    hist_mode_pion_mom_mcs[i] = new TH1D(Form("hist_pion_mom_mcs_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_pion_mom_mcs[i]->SetFillColor(mode_color[i]);
     hist_mode_pion_mom_mcs[i]->SetFillStyle(mode_style[i]);
-    hist_mode_pion_mom_range[i] = new TH1D(Form("hist_pion_mom_range_%d", i), "", 15, 0., 1500.);
+    hist_mode_pion_mom_range[i] = new TH1D(Form("hist_pion_mom_range_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_pion_mom_range[i]->SetFillColor(mode_color[i]);
     hist_mode_pion_mom_range[i]->SetFillStyle(mode_style[i]);
-    hist_mode_proton_mom[i] = new TH1D(Form("hist_proton_mom_%d", i), "", 15, 0., 1500.);
+    hist_mode_proton_mom[i] = new TH1D(Form("hist_proton_mom_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_proton_mom[i]->SetFillColor(mode_color[i]);
     hist_mode_proton_mom[i]->SetFillStyle(mode_style[i]);
-    hist_mode_proton_mom_mcs[i] = new TH1D(Form("hist_proton_mom_mcs_%d", i), "", 15, 0., 1500.);
+    hist_mode_proton_mom_mcs[i] = new TH1D(Form("hist_proton_mom_mcs_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_proton_mom_mcs[i]->SetFillColor(mode_color[i]);
     hist_mode_proton_mom_mcs[i]->SetFillStyle(mode_style[i]);
-    hist_mode_proton_mom_range[i] = new TH1D(Form("hist_proton_mom_range_%d", i), "", 15, 0., 1500.);
+    hist_mode_proton_mom_range[i] = new TH1D(Form("hist_proton_mom_range_%d", i), "", hadron_mom_bin_size - 1, hadron_mom_bins);
     hist_mode_proton_mom_range[i]->SetFillColor(mode_color[i]);
     hist_mode_proton_mom_range[i]->SetFillStyle(mode_style[i]);
 
-    hist_mode_muon_mom_mcs_all[i] = new TH1D(Form("hist_muon_mom_mcs_all_%d", i), "", 20, 0., 2000.);
+    hist_mode_muon_mom_mcs_all[i] = new TH1D(Form("hist_muon_mom_mcs_all_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
     hist_mode_muon_mom_mcs_all[i]->SetFillColor(mode_color[i]);
     hist_mode_muon_mom_mcs_all[i]->SetFillStyle(mode_style[i]);
 
@@ -169,53 +169,53 @@ void AnalyzeMomentum(std::string b2filename,
   // Muon is mis-id-ed
   TH1D *hist_muon_misid_mom = new TH1D("hist_muon_misid_mom",
 				       "\"Muon\" reconstructed momentum;p_{#mu} [MeV/c];Entries",
-				       20, 0., 2000.);
+				       muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_misid_mom_mcs = new TH1D("hist_muon_misid_mom_mcs",
 					   "\"Muon\" MCS reconstructed momentum;p_{#mu} [MeV/c];Entries",
-					   20, 0., 2000.);
+					   muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_muon_misid_mom_range = new TH1D("hist_muon_misid_mom_range",
 					     "\"Muon\" range reconstructed momentum;p_{#mu} [MeV/c];Entries",
-					     20, 0., 2000.);
+					     muon_mom_bin_size - 1, muon_mom_bins);
   TH1D *hist_proton_mom_muon_misid = new TH1D("hist_proton_mom_muon_misid",
 					      "",
-					      15, 0., 1500.);
+					      hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_mom_mcs_muon_misid = new TH1D("hist_proton_mom_mcs_muon_misid",
 						  "",
-						  15, 0., 1500.);
+						  hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_mom_range_muon_misid = new TH1D("hist_proton_mom_range_muon_misid",
 						    "",
-						    15, 0., 1500.);
+						    hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_mom_muon_misid = new TH1D("hist_pion_mom_muon_misid",
 					      "",
-					      15, 0., 1500.);
+					      hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_mom_mcs_muon_misid = new TH1D("hist_pion_mom_mcs_muon_misid",
 						  "",
-						  15, 0., 1500.);
+						  hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_mom_range_muon_misid = new TH1D("hist_pion_mom_range_muon_misid",
 						    "",
-						    15, 0., 1500.);
+						    hadron_mom_bin_size - 1, hadron_mom_bins);
 
   TH1D *hist_muon_misid_mom_mcs_all = new TH1D("hist_muon_misid_mom_mcs_all","",20,0.,2000.);
 
   // Muon is correctly id-ed but partner is not
   TH1D *hist_proton_misid_mom = new TH1D("hist_proton_misid_mom",
 					 "\"Proton\" reconstructed momentum;p_{p} [MeV/c];Entries",
-					 15, 0., 1500.);
+					 hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_misid_mom_mcs = new TH1D("hist_proton_misid_mom_mcs",
 					     "\"Proton\" MCS reconstructed momentum;p_{p} [MeV/c];Entries",
-					     15, 0., 1500.);
+					     hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_proton_misid_mom_range = new TH1D("hist_proton_misid_mom_range",
 					       "\"Proton\" range reconstructed momentum;p_{p} [MeV/c];Entries",
-					       15, 0., 1500.);
+					       hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_misid_mom = new TH1D("hist_pion_misid_mom",
 				       "\"Pion\" reconstructed momentum;p_{#pi} [MeV/c];Entries",
-				       15, 0., 1500.);
+				       hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_misid_mom_mcs = new TH1D("hist_pion_misid_mom_mcs",
 					   "\"Pion\" MCS reconstructed momentum;p_{#pi} [MeV/c];Entries",
-					   15, 0., 1500.);
+					   hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_pion_misid_mom_range = new TH1D("hist_pion_misid_mom_range",
 					      "\"Pion\" range reconstructed momentum;p_{#pi} [MeV/c];Entries",
-					      15, 0., 1500.);
+					      hadron_mom_bin_size - 1, hadron_mom_bins);
 
   // Signal only kinematics
   TH2D *hist_muon_mom_ang = new TH2D("hist_muon_mom_ang",
@@ -252,6 +252,35 @@ void AnalyzeMomentum(std::string b2filename,
 					     "Muon momentum vs angle;p_{#mu, MCS} [MeV/c];#theta_{#mu} [deg]",
 					     100, 0., 2000., 90, 0., 90.);
 
+  // For flux systematic uncertainty study
+  TH2D *hist_flux_mu_total = new TH2D("hist_flux_mu_total", ";Muon momentum [MeV/c];E_{#nu} [GeV]",
+				      muon_mom_bin_size - 1, muon_mom_bins,
+				      nu_ene_bin_size - 1, nu_ene_bins);  
+  TH2D *hist_flux_mu_range = new TH2D("hist_flux_mu_range", ";Muon range momentum [MeV/c];E_{#nu} [GeV]",
+				      muon_mom_bin_size - 1, muon_mom_bins,
+				      nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_mu_mcs = new TH2D("hist_flux_mu_mcs", ";Muon MCS momentum [MeV/c];E_{#nu} [GeV]",
+				    muon_mom_bin_size - 1, muon_mom_bins,
+				    nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_p_total = new TH2D("hist_flux_p_total", ";Proton momentum [MeV/c];E_{#nu} [GeV]",
+				     hadron_mom_bin_size - 1, hadron_mom_bins,
+				     nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_p_range = new TH2D("hist_flux_p_range", ";Proton range momentum [MeV/c];E_{#nu} [GeV]",
+				     hadron_mom_bin_size - 1, hadron_mom_bins,
+				     nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_p_mcs = new TH2D("hist_flux_p_mcs", ";Proton MCS momentum [MeV/c];E_{#nu} [GeV]",
+				   hadron_mom_bin_size - 1, hadron_mom_bins,
+				   nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_pi_total = new TH2D("hist_flux_pi_total", ";Pion momentum [MeV/c];E_{#nu} [GeV]",
+				      hadron_mom_bin_size - 1, hadron_mom_bins,
+				      nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_pi_range = new TH2D("hist_flux_pi_range", ";Pion range momentum [MeV/c];E_{#nu} [GeV]",
+				      hadron_mom_bin_size - 1, hadron_mom_bins,
+				      nu_ene_bin_size - 1, nu_ene_bins);
+  TH2D *hist_flux_pi_mcs = new TH2D("hist_flux_pi_mcs", ";Pion MCS momentum [MeV/c];E_{#nu} [GeV]",
+				    hadron_mom_bin_size - 1, hadron_mom_bins,
+				    nu_ene_bin_size - 1, nu_ene_bins);
+  
   for ( auto ev : ev_vec ) {
 
     reader.ReadSpill(ev.groupid);
@@ -362,12 +391,14 @@ void AnalyzeMomentum(std::string b2filename,
 	      hist_muon_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
 	      hist_mode_muon_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_muon_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
+	      hist_flux_mu_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 	    }
 	    else if ( chain.stop_flag == 0 ) {
 	      hist_muon_mom_mcs->Fill(recon_momentum, ev.weight);
 	      hist_muon_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
 	      hist_mode_muon_mom_mcs[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_muon_mom_ang_mcs->Fill(recon_momentum, theta_deg, ev.weight);
+	      hist_flux_mu_mcs->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 	    }
 	    
 	    hist_muon_mom->Fill(recon_momentum, ev.weight);
@@ -380,6 +411,8 @@ void AnalyzeMomentum(std::string b2filename,
 	    hist_mode_muon_mom_mcs_all[mode_id]->Fill(chain.ecc_mcs_mom[0], ev.weight);
 	    hist_muon_mom_ang_mcs_all->Fill(chain.ecc_mcs_mom[0], theta_deg, ev.weight);
 
+	    hist_flux_mu_total->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+
 	  }
 	  else if ( particle_id == 2212 ) {
 	    if ( particle_id == true_particle_id ) {
@@ -388,18 +421,22 @@ void AnalyzeMomentum(std::string b2filename,
 		hist_proton_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
 		hist_mode_proton_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
 		hist_proton_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
+		hist_flux_p_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 	      }
 	      else if ( chain.stop_flag == 0 ) {
 		hist_proton_mom_mcs->Fill(recon_momentum, ev.weight);
 		hist_proton_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
 		hist_mode_proton_mom_mcs[mode_id]->Fill(recon_momentum, ev.weight);
 		hist_proton_mom_ang_mcs->Fill(recon_momentum, theta_deg, ev.weight);
+		hist_flux_p_mcs->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 	      }
 	      
 	      hist_proton_mom->Fill(recon_momentum, ev.weight);
 	      hist_proton_mom_recon_true->Fill(true_momentum, recon_momentum, ev.weight);
 	      hist_mode_proton_mom[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_proton_mom_ang->Fill(recon_momentum, theta_deg, ev.weight);
+
+	      hist_flux_p_total->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 
 	      double pbeta_mu = chain.ecc_mcs_mom[0];
 	      pbeta_mu = pbeta_mu * pbeta_mu / std::sqrt(pbeta_mu * pbeta_mu + muon_mass * muon_mass);
@@ -423,18 +460,23 @@ void AnalyzeMomentum(std::string b2filename,
 		hist_pion_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
 		hist_mode_pion_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
 		hist_pion_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
+		hist_flux_pi_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 	      }
 	      else if ( chain.stop_flag == 0 ) {
 		hist_pion_mom_mcs->Fill(recon_momentum, ev.weight);
 		hist_pion_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
 		hist_mode_pion_mom_mcs[mode_id]->Fill(recon_momentum, ev.weight);
 		hist_pion_mom_ang_mcs->Fill(recon_momentum, theta_deg, ev.weight);
+		hist_flux_pi_mcs->Fill(recon_momentum, ev.nu_energy / 1000, ev.weight);
 	      }
 
 	      hist_pion_mom->Fill(recon_momentum, ev.weight);
 	      hist_pion_mom_recon_true->Fill(true_momentum, recon_momentum, ev.weight);
 	      hist_mode_pion_mom[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_pion_mom_ang->Fill(recon_momentum, theta_deg, ev.weight);
+
+	      hist_flux_pi_total->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+
 	    }
 	    else {
 	      if ( chain.stop_flag == 2 )
@@ -548,6 +590,16 @@ void AnalyzeMomentum(std::string b2filename,
     hist_mode_muon_mom_mcs_all[i]->Write();
   }
   hist_muon_mom_ang_mcs_all->Write();
+
+  hist_flux_mu_total->Write();
+  hist_flux_mu_range->Write();
+  hist_flux_mu_mcs->Write();
+  hist_flux_p_total->Write();
+  hist_flux_p_range->Write();
+  hist_flux_p_mcs->Write();
+  hist_flux_pi_total->Write();
+  hist_flux_pi_range->Write();
+  hist_flux_pi_mcs->Write();
 
   outputfile->Close();
 
