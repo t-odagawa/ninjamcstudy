@@ -8,9 +8,7 @@ void StackModeAng() {
   l_proton_ang->SetName("l_proton_ang");
 
   // Signal + packing/mis-pid background
-  // TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode3.root";
-  // TString filename = "/group/nu/ninja/work/odagawa/20220927-mc-new-matching/output/output_mode3.root";
-  TString filename = "/group/nu/ninja/work/odagawa/20221020-phd-thesis-preliminary/signal/output/output_mode3.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/signal/output/output_mode3.root";
   TFile *file = new TFile(filename, "read");
   double scale = 1. / 976. / 33.156 * 0.47 * 0.99;
 
@@ -72,168 +70,9 @@ void StackModeAng() {
   hist_proton_misid_ang_cos->Scale(scale);
   hist_proton_misid_ang_cos->SetFillColor(kOrange);
 
-  // Proton Module background
-  // TString pmfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_pm_20220627/output/bg_dist.root";
-  TString pmfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/pm/output/bg_dist.root";
-  TFile *pmfile = new TFile(pmfilename, "read");
-  auto hist_pm_mu_ang_deg = (TH1D*)pmfile->Get("hist_pm_bg_mu_deg");
-  auto hist_pm_mu_ang_cos = (TH1D*)pmfile->Get("hist_pm_bg_mu_cos");
-  auto hist_pm_pi_ang_deg = (TH1D*)pmfile->Get("hist_pm_bg_pi_deg");
-  auto hist_pm_pi_ang_cos = (TH1D*)pmfile->Get("hist_pm_bg_pi_cos");
-  auto hist_pm_p_ang_deg = (TH1D*)pmfile->Get("hist_pm_bg_p_deg");
-  auto hist_pm_p_ang_cos = (TH1D*)pmfile->Get("hist_pm_bg_p_cos");
-  double pmscale = 1. / 999. * 0.47 * 0.99;
-  hist_pm_mu_ang_deg->Scale(pmscale);
-  hist_pm_mu_ang_cos->Scale(pmscale);
-  hist_pm_pi_ang_deg->Scale(pmscale);
-  hist_pm_pi_ang_cos->Scale(pmscale);
-  hist_pm_p_ang_deg->Scale(pmscale);
-  hist_pm_p_ang_cos->Scale(pmscale);
-
-  // Upstream WAGASCI background
-  // TString uwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_uwg_20220722/output/bg_dist.root";
-  TString uwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/uwg/output/bg_dist.root";
-  TFile *uwgfile = new TFile(uwgfilename, "read");
-  auto hist_uwg_mu_ang_deg = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_deg");
-  auto hist_uwg_mu_ang_cos = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_cos");
-  auto hist_uwg_pi_ang_deg = (TH1D*)uwgfile->Get("hist_uwg_bg_pi_deg");
-  auto hist_uwg_pi_ang_cos = (TH1D*)uwgfile->Get("hist_uwg_bg_pi_cos");
-  auto hist_uwg_p_ang_deg = (TH1D*)uwgfile->Get("hist_uwg_bg_p_deg");
-  auto hist_uwg_p_ang_cos = (TH1D*)uwgfile->Get("hist_uwg_bg_p_cos");
-  double uwgscale = 1. / 999. * 0.47 * 0.99;
-  hist_uwg_mu_ang_deg->Scale(uwgscale);
-  hist_uwg_mu_ang_cos->Scale(uwgscale);
-  hist_uwg_pi_ang_deg->Scale(uwgscale);
-  hist_uwg_pi_ang_cos->Scale(uwgscale);
-  hist_uwg_p_ang_deg->Scale(uwgscale);
-  hist_uwg_p_ang_cos->Scale(uwgscale);
-
-  // Downstream WAGASCI background
-  // TString dwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_dwg_20220712/output/bg_dist.root";
-  TString dwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/dwg/output/bg_dist.root";
-  TFile *dwgfile = new TFile(dwgfilename, "read");
-  auto hist_dwg_mu_ang_deg = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_deg");
-  auto hist_dwg_mu_ang_cos = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_cos");
-  auto hist_dwg_pi_ang_deg = (TH1D*)dwgfile->Get("hist_dwg_bg_pi_deg");
-  auto hist_dwg_pi_ang_cos = (TH1D*)dwgfile->Get("hist_dwg_bg_pi_cos");
-  auto hist_dwg_p_ang_deg = (TH1D*)dwgfile->Get("hist_dwg_bg_p_deg");
-  auto hist_dwg_p_ang_cos = (TH1D*)dwgfile->Get("hist_dwg_bg_p_cos");
-  double dwgscale = 1. / 999. * 0.47 * 0.99;
-  hist_dwg_mu_ang_deg->Scale(dwgscale);
-  hist_dwg_mu_ang_cos->Scale(dwgscale);
-  hist_dwg_pi_ang_deg->Scale(dwgscale);
-  hist_dwg_pi_ang_cos->Scale(dwgscale);
-  hist_dwg_p_ang_deg->Scale(dwgscale);
-  hist_dwg_p_ang_cos->Scale(dwgscale);
-
-  // Baby MIND background (negligible)
-
-  // Other ECC background
-  // TString otherfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/bg_dist.root";
-  TString otherfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/ecc/output/bg_dist.root";
-  TFile *otherfile = new TFile(otherfilename, "read");
-  auto hist_other_mu_ang_deg = (TH1D*)otherfile->Get("hist_ecc_bg_mu_deg");
-  auto hist_other_mu_ang_cos = (TH1D*)otherfile->Get("hist_ecc_bg_mu_cos");
-  auto hist_other_pi_ang_deg = (TH1D*)otherfile->Get("hist_ecc_bg_pi_deg");
-  auto hist_other_pi_ang_cos = (TH1D*)otherfile->Get("hist_ecc_bg_pi_cos");
-  auto hist_other_p_ang_deg = (TH1D*)otherfile->Get("hist_ecc_bg_p_deg");
-  auto hist_other_p_ang_cos = (TH1D*)otherfile->Get("hist_ecc_bg_p_cos");
-  double otherscale = 1. / 999. * 0.47 * 0.99;
-  hist_other_mu_ang_deg->Scale(otherscale);
-  hist_other_mu_ang_cos->Scale(otherscale);
-  hist_other_pi_ang_deg->Scale(otherscale);
-  hist_other_pi_ang_cos->Scale(otherscale);
-  hist_other_p_ang_deg->Scale(otherscale);
-  hist_other_p_ang_cos->Scale(otherscale);
-
-  // Wall background
-  // TString wallfilename = "/hsm/nu/ninja/pra_tmp/wall_mc_20220616/output/bg_dist.root";
-  TString wallfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/wall/output/bg_dist.root";
-  TFile *wallfile = new TFile(wallfilename, "read");
-  auto hist_wall_mu_ang_deg = (TH1D*)wallfile->Get("hist_wall_bg_mu_deg");
-  auto hist_wall_mu_ang_cos = (TH1D*)wallfile->Get("hist_wall_bg_mu_cos");
-  auto hist_wall_pi_ang_deg = (TH1D*)wallfile->Get("hist_wall_bg_pi_deg");
-  auto hist_wall_pi_ang_cos = (TH1D*)wallfile->Get("hist_wall_bg_pi_cos");
-  auto hist_wall_p_ang_deg = (TH1D*)wallfile->Get("hist_wall_bg_p_deg");
-  auto hist_wall_p_ang_cos = (TH1D*)wallfile->Get("hist_wall_bg_p_cos");
-  double wallscale = 1. / 49999. * 0.47 * 0.99;
-  hist_wall_mu_ang_deg->Scale(wallscale);
-  hist_wall_mu_ang_cos->Scale(wallscale);
-  hist_wall_pi_ang_deg->Scale(wallscale);
-  hist_wall_pi_ang_cos->Scale(wallscale);
-  hist_wall_p_ang_deg->Scale(wallscale);
-  hist_wall_p_ang_cos->Scale(wallscale);
-
-  TH1D *hist_bg_ext_mu_deg = new TH1D("hist_bg_ext_mu_deg", "", muon_deg_bin_size-1, muon_deg_bins);
-  TH1D *hist_bg_ext_mu_cos = new TH1D("hist_bg_ext_mu_cos", "", muon_cos_bin_size-1, muon_cos_bins);
-  TH1D *hist_bg_ext_pi_deg = new TH1D("hist_bg_ext_pi_deg", "", hadron_deg_bin_size-1, hadron_deg_bins);
-  TH1D *hist_bg_ext_pi_cos = new TH1D("hist_bg_ext_pi_cos", "", hadron_cos_bin_size-1, hadron_cos_bins);
-  TH1D *hist_bg_ext_p_deg = new TH1D("hist_bg_ext_p_deg", "", hadron_deg_bin_size-1, hadron_deg_bins);
-  TH1D *hist_bg_ext_p_cos = new TH1D("hist_bg_ext_p_cos", "", hadron_cos_bin_size-1, hadron_cos_bins);
-  TList *ext_list_mu_deg = new TList();
-  TList *ext_list_mu_cos = new TList();
-  TList *ext_list_pi_deg = new TList();
-  TList *ext_list_pi_cos = new TList();
-  TList *ext_list_p_deg = new TList();
-  TList *ext_list_p_cos = new TList();
-
-  ext_list_mu_deg->Add(hist_pm_mu_ang_deg);
-  ext_list_mu_deg->Add(hist_uwg_mu_ang_deg);
-  ext_list_mu_deg->Add(hist_dwg_mu_ang_deg);
-  ext_list_mu_deg->Add(hist_other_mu_ang_deg);
-  ext_list_mu_deg->Add(hist_wall_mu_ang_deg);
-  hist_bg_ext_mu_deg->Merge(ext_list_mu_deg);
-  hist_bg_ext_mu_deg->SetFillStyle(3011);
-  hist_bg_ext_mu_deg->SetFillColor(kGreen);
-
-  ext_list_mu_cos->Add(hist_pm_mu_ang_cos);
-  ext_list_mu_cos->Add(hist_uwg_mu_ang_cos);
-  ext_list_mu_cos->Add(hist_dwg_mu_ang_cos);
-  ext_list_mu_cos->Add(hist_other_mu_ang_cos);
-  ext_list_mu_cos->Add(hist_wall_mu_ang_cos);
-  hist_bg_ext_mu_cos->Merge(ext_list_mu_cos);
-  hist_bg_ext_mu_cos->SetFillStyle(3011);
-  hist_bg_ext_mu_cos->SetFillColor(kGreen);
-
-  ext_list_pi_deg->Add(hist_pm_pi_ang_deg);
-  ext_list_pi_deg->Add(hist_uwg_pi_ang_deg);
-  ext_list_pi_deg->Add(hist_dwg_pi_ang_deg);
-  ext_list_pi_deg->Add(hist_other_pi_ang_deg);
-  ext_list_pi_deg->Add(hist_wall_pi_ang_deg);
-  hist_bg_ext_pi_deg->Merge(ext_list_pi_deg);
-  hist_bg_ext_pi_deg->SetFillStyle(3011);
-  hist_bg_ext_pi_deg->SetFillColor(kGreen);
-
-  ext_list_pi_cos->Add(hist_pm_pi_ang_cos);
-  ext_list_pi_cos->Add(hist_uwg_pi_ang_cos);
-  ext_list_pi_cos->Add(hist_dwg_pi_ang_cos);
-  ext_list_pi_cos->Add(hist_other_pi_ang_cos);
-  ext_list_pi_cos->Add(hist_wall_pi_ang_cos);
-  hist_bg_ext_pi_cos->Merge(ext_list_pi_cos);
-  hist_bg_ext_pi_cos->SetFillStyle(3011);
-  hist_bg_ext_pi_cos->SetFillColor(kGreen);
-  
-  ext_list_p_deg->Add(hist_pm_p_ang_deg);
-  ext_list_p_deg->Add(hist_uwg_p_ang_deg);
-  ext_list_p_deg->Add(hist_dwg_p_ang_deg);
-  ext_list_p_deg->Add(hist_other_p_ang_deg);
-  ext_list_p_deg->Add(hist_wall_p_ang_deg);
-  hist_bg_ext_p_deg->Merge(ext_list_p_deg);
-  hist_bg_ext_p_deg->SetFillStyle(3011);
-  hist_bg_ext_p_deg->SetFillColor(kGreen);
-
-  ext_list_p_cos->Add(hist_pm_p_ang_cos);
-  ext_list_p_cos->Add(hist_uwg_p_ang_cos);
-  ext_list_p_cos->Add(hist_dwg_p_ang_cos);
-  ext_list_p_cos->Add(hist_other_p_ang_cos);
-  ext_list_p_cos->Add(hist_wall_p_ang_cos);
-  hist_bg_ext_p_cos->Merge(ext_list_p_cos);
-  hist_bg_ext_p_cos->SetFillStyle(3011);
-  hist_bg_ext_p_cos->SetFillColor(kGreen);
 
   // Iron (+emulsion) interaction background
-  // TString fefilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_fe_20220712/output/bg_dist.root";
-  TString fefilename = "/group/nu/ninja/work/odagawa/20220930-iron-mc-new-matching/output/bg_dist.root";
+  TString fefilename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/fe/output/bg_dist.root";
   TFile *fefile = new TFile(fefilename, "read");
   auto hist_fe_mu_ang_deg = (TH1D*)fefile->Get("hist_fe_bg_mu_deg");
   auto hist_fe_mu_ang_cos = (TH1D*)fefile->Get("hist_fe_bg_mu_cos");
@@ -252,8 +91,7 @@ void StackModeAng() {
   hist_fe_p_ang_cos->Scale(fescale);
 
   // Anti neutrino interaction background
-  // TString anufilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_anu_20220714/output/bg_dist.root";
-  TString anufilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/anu/output/bg_dist.root";
+  TString anufilename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/anu/output/bg_dist.root";
   TFile *anufile = new TFile(anufilename, "read");
   auto hist_anu_mu_ang_deg = (TH1D*)anufile->Get("hist_anu_bg_mu_deg");
   auto hist_anu_mu_ang_cos = (TH1D*)anufile->Get("hist_anu_bg_mu_cos");
@@ -393,7 +231,7 @@ void StackModeAng() {
   TH1D *hist_muon_deg_norm = new TH1D(*((TH1D*)(hs_muon_deg->GetStack()->Last())));
   hist_muon_deg_norm->SetName("hist_muon_deg_norm");
 
-  TFile *ofile = new TFile("~/stack_ang.root", "recreate");
+  TFile *ofile = new TFile("~/stack_ang_0pi.root", "recreate");
 
   ofile->cd();
   hs_muon_deg->Write();

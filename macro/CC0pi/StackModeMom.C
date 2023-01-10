@@ -3,18 +3,15 @@
 void StackModeMom() {
 
   // Legend 
-  TLegend *l_muon_mom = new TLegend(0.5, 0.45, 0.85, 0.85);
+  TLegend *l_muon_mom = new TLegend(0.6, 0.5, 0.85, 0.85);
   l_muon_mom->SetName("l_muon_mom");
-  TLegend *l_proton_mom = new TLegend(0.5, 0.45, 0.85, 0.85);
+  TLegend *l_proton_mom = new TLegend(0.6, 0.5, 0.85, 0.85);
   l_proton_mom->SetName("l_proton_mom");
   TLegend *l_method = new TLegend(0.6, 0.5, 0.85, 0.85);
   l_method->SetName("l_method");
 
   // Signal + packing/mis-pid background
-  // TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode2.root";
-  // TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output_angres_syst/plus/output_mode2.root";
-  // TString filename = "/group/nu/ninja/work/odagawa/20220927-mc-new-matching/output/output_mode2.root";
-  TString filename = "/group/nu/ninja/work/odagawa/20221020-phd-thesis-preliminary/signal/output/output_mode2.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/signal/output/output_mode2.root";
   TFile *file = new TFile(filename, "read");
   double scale = 1. / 976. / 33.156 * 0.47 * 0.99;
 
@@ -133,258 +130,6 @@ void StackModeMom() {
   hist_proton_misid_mom_mcs->SetFillColor(kOrange);
   hist_proton_misid_mom_range->Scale(scale);
   hist_proton_misid_mom_range->SetFillColor(kOrange);
-    
-  // Proton Module background
-  // TString pmfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_pm_20220627/output/bg_dist.root";
-  TString pmfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/pm/output/bg_dist.root";
-  TFile *pmfile = new TFile(pmfilename, "read");
-  auto hist_pm_mu_mom = (TH1D*)pmfile->Get("hist_pm_bg_mu_mom");
-  auto hist_pm_mu_mom_mcs = (TH1D*)pmfile->Get("hist_pm_bg_mu_mom_mcs");
-  auto hist_pm_mu_mom_range = (TH1D*)pmfile->Get("hist_pm_bg_mu_mom_range");
-  auto hist_pm_p_mom = (TH1D*)pmfile->Get("hist_pm_bg_p_mom");
-  auto hist_pm_p_mom_mcs = (TH1D*)pmfile->Get("hist_pm_bg_p_mom_mcs");
-  auto hist_pm_p_mom_range = (TH1D*)pmfile->Get("hist_pm_bg_p_mom_range");
-  auto hist_pm_pi_mom = (TH1D*)pmfile->Get("hist_pm_bg_pi_mom");
-  auto hist_pm_pi_mom_mcs = (TH1D*)pmfile->Get("hist_pm_bg_pi_mom_mcs");
-  auto hist_pm_pi_mom_range = (TH1D*)pmfile->Get("hist_pm_bg_pi_mom_range");
-  double pmscale = 1. / 999. * 0.47 * 0.99;
-  hist_pm_mu_mom->Scale(pmscale);
-  hist_pm_mu_mom_mcs->Scale(pmscale);
-  hist_pm_mu_mom_range->Scale(pmscale);
-  hist_pm_pi_mom->Scale(pmscale);
-  hist_pm_pi_mom_mcs->Scale(pmscale);
-  hist_pm_pi_mom_range->Scale(pmscale);
-  hist_pm_p_mom->Scale(pmscale);
-  hist_pm_p_mom_mcs->Scale(pmscale);
-  hist_pm_p_mom_range->Scale(pmscale);
-
-  // auto hist_pm_mu_mom_mcs_all = (TH1D*)pmfile->Get("hist_pm_bg_mu_mom_mcs_all");
-  // hist_pm_mu_mom_mcs_all->Scale(pmscale);
-
-  // Upstream WAGASCI background
-  // TString uwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_uwg_20220722/output/bg_dist.root";
-  TString uwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/uwg/output/bg_dist.root";
-  TFile *uwgfile = new TFile(uwgfilename, "read");
-  auto hist_uwg_mu_mom = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_mom");
-  auto hist_uwg_mu_mom_mcs = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_mom_mcs");
-  auto hist_uwg_mu_mom_range = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_mom_range");
-  auto hist_uwg_p_mom = (TH1D*)uwgfile->Get("hist_uwg_bg_p_mom");
-  auto hist_uwg_p_mom_mcs = (TH1D*)uwgfile->Get("hist_uwg_bg_p_mom_mcs");
-  auto hist_uwg_p_mom_range = (TH1D*)uwgfile->Get("hist_uwg_bg_p_mom_range");
-  auto hist_uwg_pi_mom = (TH1D*)uwgfile->Get("hist_uwg_bg_pi_mom");
-  auto hist_uwg_pi_mom_mcs = (TH1D*)uwgfile->Get("hist_uwg_bg_pi_mom_mcs");
-  auto hist_uwg_pi_mom_range = (TH1D*)uwgfile->Get("hist_uwg_bg_pi_mom_range");
-  double uwgscale = 1. / 999. * 0.47 * 0.99;
-  hist_uwg_mu_mom->Scale(uwgscale);
-  hist_uwg_mu_mom_mcs->Scale(uwgscale);
-  hist_uwg_mu_mom_range->Scale(uwgscale);
-  hist_uwg_pi_mom->Scale(uwgscale);
-  hist_uwg_pi_mom_mcs->Scale(uwgscale);
-  hist_uwg_pi_mom_range->Scale(uwgscale);
-  hist_uwg_p_mom->Scale(uwgscale);
-  hist_uwg_p_mom_mcs->Scale(uwgscale);
-  hist_uwg_p_mom_range->Scale(uwgscale);
-
-  // auto hist_uwg_mu_mom_mcs_all = (TH1D*)uwgfile->Get("hist_uwg_bg_mu_mom_mcs_all");
-  // hist_uwg_mu_mom_mcs_all->Scale(uwgscale);
-
-
-  // Downstream WAGASCI background
-  // TString dwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_dwg_20220712/output/bg_dist.root";
-  TString dwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/dwg/output/bg_dist.root";
-  TFile *dwgfile = new TFile(dwgfilename, "read");
-  auto hist_dwg_mu_mom = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_mom");
-  auto hist_dwg_mu_mom_mcs = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_mom_mcs");
-  auto hist_dwg_mu_mom_range = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_mom_range");
-  auto hist_dwg_p_mom = (TH1D*)dwgfile->Get("hist_dwg_bg_p_mom");
-  auto hist_dwg_p_mom_mcs = (TH1D*)dwgfile->Get("hist_dwg_bg_p_mom_mcs");
-  auto hist_dwg_p_mom_range = (TH1D*)dwgfile->Get("hist_dwg_bg_p_mom_range");
-  auto hist_dwg_pi_mom = (TH1D*)dwgfile->Get("hist_dwg_bg_pi_mom");
-  auto hist_dwg_pi_mom_mcs = (TH1D*)dwgfile->Get("hist_dwg_bg_pi_mom_mcs");
-  auto hist_dwg_pi_mom_range = (TH1D*)dwgfile->Get("hist_dwg_bg_pi_mom_range");
-  double dwgscale = 1. / 999. * 0.47 * 0.99;
-  hist_dwg_mu_mom->Scale(dwgscale);
-  hist_dwg_mu_mom_mcs->Scale(dwgscale);
-  hist_dwg_mu_mom_range->Scale(dwgscale);
-  hist_dwg_pi_mom->Scale(dwgscale);
-  hist_dwg_pi_mom_mcs->Scale(dwgscale);
-  hist_dwg_pi_mom_range->Scale(dwgscale);
-  hist_dwg_p_mom->Scale(dwgscale);
-  hist_dwg_p_mom_mcs->Scale(dwgscale);
-  hist_dwg_p_mom_range->Scale(dwgscale);
-
-  // auto hist_dwg_mu_mom_mcs_all = (TH1D*)dwgfile->Get("hist_dwg_bg_mu_mom_mcs_all");
-  // hist_dwg_mu_mom_mcs_all->Scale(dwgscale);
-
-  // Baby MIND background (negligible)
-
-  // Other ECC background
-  // TString otherfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/bg_dist.root";
-  TString otherfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/ecc/output/bg_dist.root";
-  TFile *otherfile = new TFile(otherfilename, "read");
-  auto hist_other_mu_mom = (TH1D*)otherfile->Get("hist_ecc_bg_mu_mom");
-  auto hist_other_mu_mom_mcs = (TH1D*)otherfile->Get("hist_ecc_bg_mu_mom_mcs");
-  auto hist_other_mu_mom_range = (TH1D*)otherfile->Get("hist_ecc_bg_mu_mom_range");
-  auto hist_other_p_mom = (TH1D*)otherfile->Get("hist_ecc_bg_p_mom");
-  auto hist_other_p_mom_mcs = (TH1D*)otherfile->Get("hist_ecc_bg_p_mom_mcs");
-  auto hist_other_p_mom_range = (TH1D*)otherfile->Get("hist_ecc_bg_p_mom_range");
-  auto hist_other_pi_mom = (TH1D*)otherfile->Get("hist_ecc_bg_pi_mom");
-  auto hist_other_pi_mom_mcs = (TH1D*)otherfile->Get("hist_ecc_bg_pi_mom_mcs");
-  auto hist_other_pi_mom_range = (TH1D*)otherfile->Get("hist_ecc_bg_pi_mom_range");
-  double otherscale = 1. / 999. * 0.47 * 0.99;
-  hist_other_mu_mom->Scale(otherscale);
-  hist_other_mu_mom_mcs->Scale(otherscale);
-  hist_other_mu_mom_range->Scale(otherscale);
-  hist_other_pi_mom->Scale(otherscale);
-  hist_other_pi_mom_mcs->Scale(otherscale);
-  hist_other_pi_mom_range->Scale(otherscale);
-  hist_other_p_mom->Scale(otherscale);
-  hist_other_p_mom_mcs->Scale(otherscale);
-  hist_other_p_mom_range->Scale(otherscale);
-
-  // auto hist_other_mu_mom_mcs_all = (TH1D*)otherfile->Get("hist_ecc_bg_mu_mom_mcs_all");
-  // hist_other_mu_mom_mcs_all->Scale(otherscale);
-
-  // Wall background
-  // TString wallfilename = "/hsm/nu/ninja/pra_tmp/wall_mc_20220616/output/bg_dist.root";
-  TString wallfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/wall/output/bg_dist.root";
-  TFile *wallfile = new TFile(wallfilename, "read");
-  auto hist_wall_mu_mom = (TH1D*)wallfile->Get("hist_wall_bg_mu_mom");
-  auto hist_wall_mu_mom_mcs = (TH1D*)wallfile->Get("hist_wall_bg_mu_mom_mcs");
-  auto hist_wall_mu_mom_range = (TH1D*)wallfile->Get("hist_wall_bg_mu_mom_range");
-  auto hist_wall_p_mom = (TH1D*)wallfile->Get("hist_wall_bg_p_mom");
-  auto hist_wall_p_mom_mcs = (TH1D*)wallfile->Get("hist_wall_bg_p_mom_mcs");
-  auto hist_wall_p_mom_range = (TH1D*)wallfile->Get("hist_wall_bg_p_mom_range");
-  auto hist_wall_pi_mom = (TH1D*)wallfile->Get("hist_wall_bg_pi_mom");
-  auto hist_wall_pi_mom_mcs = (TH1D*)wallfile->Get("hist_wall_bg_pi_mom_mcs");
-  auto hist_wall_pi_mom_range = (TH1D*)wallfile->Get("hist_wall_bg_pi_mom_range");
-  double wallscale = 1. / 49999. * 0.47 * 0.99;
-  hist_wall_mu_mom->Scale(wallscale);
-  hist_wall_mu_mom_mcs->Scale(wallscale);
-  hist_wall_mu_mom_range->Scale(wallscale);
-  hist_wall_pi_mom->Scale(wallscale);
-  hist_wall_pi_mom_mcs->Scale(wallscale);
-  hist_wall_pi_mom_range->Scale(wallscale);
-  hist_wall_p_mom->Scale(wallscale);
-  hist_wall_p_mom_mcs->Scale(wallscale);
-  hist_wall_p_mom_range->Scale(wallscale);
-
-  // auto hist_wall_mu_mom_mcs_all = (TH1D*)wallfile->Get("hist_wall_bg_mu_mom_mcs_all");
-  // hist_wall_mu_mom_mcs_all->Scale(wallscale);
-
-  TH1D *hist_bg_ext_mu_mom = new TH1D("hist_bg_ext_mu_mom", "", muon_mom_bin_size-1, muon_mom_bins);
-  TH1D *hist_bg_ext_mu_mom_mcs = new TH1D("hist_bg_ext_mu_mom_mcs", "", muon_mom_bin_size-1, muon_mom_bins);
-  TH1D *hist_bg_ext_mu_mom_range = new TH1D("hist_bg_ext_mu_mom_range", "", muon_mom_bin_size-1, muon_mom_bins);
-  TH1D *hist_bg_ext_pi_mom = new TH1D("hist_bg_ext_pi_mom", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TH1D *hist_bg_ext_pi_mom_mcs = new TH1D("hist_bg_ext_pi_mom_mcs", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TH1D *hist_bg_ext_pi_mom_range = new TH1D("hist_bg_ext_pi_mom_range", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TH1D *hist_bg_ext_p_mom = new TH1D("hist_bg_ext_p_mom", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TH1D *hist_bg_ext_p_mom_mcs = new TH1D("hist_bg_ext_p_mom_mcs", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TH1D *hist_bg_ext_p_mom_range = new TH1D("hist_bg_ext_p_mom_range", "", hadron_mom_bin_size-1, hadron_mom_bins);
-  TList *ext_list_mu_mom = new TList();
-  TList *ext_list_mu_mom_mcs = new TList();
-  TList *ext_list_mu_mom_range = new TList();
-  TList *ext_list_pi_mom = new TList();
-  TList *ext_list_pi_mom_mcs = new TList();
-  TList *ext_list_pi_mom_range = new TList();
-  TList *ext_list_p_mom = new TList();
-  TList *ext_list_p_mom_mcs = new TList();
-  TList *ext_list_p_mom_range = new TList();
-
-  // TH1D *hist_bg_ext_mu_mom_mcs_all = new TH1D("hist_bg_ext_mu_mom_mcs_all", "", muon_mom_bin_size-1, muon_mom_bins);
-  // TList *ext_list_mu_mom_mcs_all = new TList();
-
-  ext_list_mu_mom->Add(hist_pm_mu_mom);
-  ext_list_mu_mom->Add(hist_uwg_mu_mom);
-  ext_list_mu_mom->Add(hist_dwg_mu_mom);
-  ext_list_mu_mom->Add(hist_other_mu_mom);
-  ext_list_mu_mom->Add(hist_wall_mu_mom);
-  hist_bg_ext_mu_mom->Merge(ext_list_mu_mom);
-  hist_bg_ext_mu_mom->SetFillStyle(3011);
-  hist_bg_ext_mu_mom->SetFillColor(kGreen);
-
-  ext_list_mu_mom_mcs->Add(hist_pm_mu_mom_mcs);
-  ext_list_mu_mom_mcs->Add(hist_uwg_mu_mom_mcs);
-  ext_list_mu_mom_mcs->Add(hist_dwg_mu_mom_mcs);
-  ext_list_mu_mom_mcs->Add(hist_other_mu_mom_mcs);
-  ext_list_mu_mom_mcs->Add(hist_wall_mu_mom_mcs);
-  hist_bg_ext_mu_mom_mcs->Merge(ext_list_mu_mom_mcs);
-  hist_bg_ext_mu_mom_mcs->SetFillStyle(3011);
-  hist_bg_ext_mu_mom_mcs->SetFillColor(kGreen);
-
-  ext_list_mu_mom_range->Add(hist_pm_mu_mom_range);
-  ext_list_mu_mom_range->Add(hist_uwg_mu_mom_range);
-  ext_list_mu_mom_range->Add(hist_dwg_mu_mom_range);
-  ext_list_mu_mom_range->Add(hist_other_mu_mom_range);
-  ext_list_mu_mom_range->Add(hist_wall_mu_mom_range);
-  hist_bg_ext_mu_mom_range->Merge(ext_list_mu_mom_range);
-  hist_bg_ext_mu_mom_range->SetFillStyle(3011);
-  hist_bg_ext_mu_mom_range->SetFillColor(kGreen);
-
-  ext_list_pi_mom->Add(hist_pm_pi_mom);
-  ext_list_pi_mom->Add(hist_uwg_pi_mom);
-  ext_list_pi_mom->Add(hist_dwg_pi_mom);
-  ext_list_pi_mom->Add(hist_other_pi_mom);
-  ext_list_pi_mom->Add(hist_wall_pi_mom);
-  hist_bg_ext_pi_mom->Merge(ext_list_pi_mom);
-  hist_bg_ext_pi_mom->SetFillStyle(3011);
-  hist_bg_ext_pi_mom->SetFillColor(kGreen);
-
-  ext_list_pi_mom_mcs->Add(hist_pm_pi_mom_mcs);
-  ext_list_pi_mom_mcs->Add(hist_uwg_pi_mom_mcs);
-  ext_list_pi_mom_mcs->Add(hist_dwg_pi_mom_mcs);
-  ext_list_pi_mom_mcs->Add(hist_other_pi_mom_mcs);
-  ext_list_pi_mom_mcs->Add(hist_wall_pi_mom_mcs);
-  hist_bg_ext_pi_mom_mcs->Merge(ext_list_pi_mom_mcs);
-  hist_bg_ext_pi_mom_mcs->SetFillStyle(3011);
-  hist_bg_ext_pi_mom_mcs->SetFillColor(kGreen);
-
-  ext_list_pi_mom_range->Add(hist_pm_pi_mom_range);
-  ext_list_pi_mom_range->Add(hist_uwg_pi_mom_range);
-  ext_list_pi_mom_range->Add(hist_dwg_pi_mom_range);
-  ext_list_pi_mom_range->Add(hist_other_pi_mom_range);
-  ext_list_pi_mom_range->Add(hist_wall_pi_mom_range);
-  hist_bg_ext_pi_mom_range->Merge(ext_list_pi_mom_range);
-  hist_bg_ext_pi_mom_range->SetFillStyle(3011);
-  hist_bg_ext_pi_mom_range->SetFillColor(kGreen);
-
-  ext_list_p_mom->Add(hist_pm_p_mom);
-  ext_list_p_mom->Add(hist_uwg_p_mom);
-  ext_list_p_mom->Add(hist_dwg_p_mom);
-  ext_list_p_mom->Add(hist_other_p_mom);
-  ext_list_p_mom->Add(hist_wall_p_mom);
-  hist_bg_ext_p_mom->Merge(ext_list_p_mom);
-  hist_bg_ext_p_mom->SetFillStyle(3011);
-  hist_bg_ext_p_mom->SetFillColor(kGreen);
-
-  ext_list_p_mom_mcs->Add(hist_pm_p_mom_mcs);
-  ext_list_p_mom_mcs->Add(hist_uwg_p_mom_mcs);
-  ext_list_p_mom_mcs->Add(hist_dwg_p_mom_mcs);
-  ext_list_p_mom_mcs->Add(hist_other_p_mom_mcs);
-  ext_list_p_mom_mcs->Add(hist_wall_p_mom_mcs);
-  hist_bg_ext_p_mom_mcs->Merge(ext_list_p_mom_mcs);
-  hist_bg_ext_p_mom_mcs->SetFillStyle(3011);
-  hist_bg_ext_p_mom_mcs->SetFillColor(kGreen);
-
-  ext_list_p_mom_range->Add(hist_pm_p_mom_range);
-  ext_list_p_mom_range->Add(hist_uwg_p_mom_range);
-  ext_list_p_mom_range->Add(hist_dwg_p_mom_range);
-  ext_list_p_mom_range->Add(hist_other_p_mom_range);
-  ext_list_p_mom_range->Add(hist_wall_p_mom_range);
-  hist_bg_ext_p_mom_range->Merge(ext_list_p_mom_range);
-  hist_bg_ext_p_mom_range->SetFillStyle(3011);
-  hist_bg_ext_p_mom_range->SetFillColor(kGreen);
-
-  /*
-  ext_list_mu_mom_mcs_all->Add(hist_pm_mu_mom_mcs_all);
-  ext_list_mu_mom_mcs_all->Add(hist_uwg_mu_mom_mcs_all);
-  ext_list_mu_mom_mcs_all->Add(hist_dwg_mu_mom_mcs_all);
-  ext_list_mu_mom_mcs_all->Add(hist_other_mu_mom_mcs_all);
-  ext_list_mu_mom_mcs_all->Add(hist_wall_mu_mom_mcs_all);
-  hist_bg_ext_mu_mom_mcs_all->Merge(ext_list_mu_mom_mcs_all);
-  hist_bg_ext_mu_mom_mcs_all->SetFillStyle(3011);
-  hist_bg_ext_mu_mom_mcs_all->SetFillColor(kGreen);
-  */
 
   // Iron (+ emulsion?) interaction background
   // TString fefilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_fe_20220712/output/bg_dist.root";
@@ -639,7 +384,7 @@ void StackModeMom() {
   TH1D *hist_range_norm = new TH1D(*((TH1D*)(hs_muon_mom_range->GetStack()->Last())));
   hist_range_norm->SetName("hist_range_norm");
 
-  TFile *ofile = new TFile("~/stack_mom.root", "recreate");
+  TFile *ofile = new TFile("~/stack_mom_0pi.root", "recreate");
   // TFile *ofile = new TFile("~/stack_mom_syst.root", "recreate");
 
   ofile->cd();

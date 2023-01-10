@@ -9,9 +9,7 @@ void StackModeMulti() {
   l_water_multi_p->SetName("l_water_multi_p");
 
   // Signal + packing/mis-pid background
-  // TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode0.root";
-  // TString filename = "/group/nu/ninja/work/odagawa/20220927-mc-new-matching/output/output_mode0.root";
-  TString filename = "/group/nu/ninja/work/odagawa/20221020-phd-thesis-preliminary/signal/output/output_mode0.root";
+  TString filename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/signal/output/output_mode0.root";
   TFile *file = new TFile(filename, "read");
   auto hist_water_total_multi = (TH1D*)file->Get("hist_water_total_multi");
   double scale = 1. / 976. / 33.156 * 0.47 * 0.99;
@@ -35,6 +33,7 @@ void StackModeMulti() {
   auto hist_pack_bg = new TH1D("hist_pack_bg", "", total_multi_bin_size-1, total_multi_bins);
   hist_pack_bg->Fill(1, hist_water_total_multi->Integral(0,1) * 0.09);
   hist_pack_bg->Scale(scale);
+
   auto hist_pack_bg_p = (TH1D*)file->Get("hist_single_proton_multi");
   hist_pack_bg_p->Scale(scale * 0.09);
   auto hist_pack_bg_pi = (TH1D*)file->Get("hist_single_pion_multi");
@@ -55,114 +54,9 @@ void StackModeMulti() {
   hist_water_proton_misid_multi->SetFillColor(kOrange);
   hist_water_pion_misid_multi->Scale(scale);
   hist_water_pion_misid_multi->SetFillColor(kOrange);
-
-  // Proton Module background
-  // TString pmfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_pm_20220627/output/bg_dist.root";
-  TString pmfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/pm/output/bg_dist.root";
-  TFile *pmfile = new TFile(pmfilename, "read");
-  auto pmhist = (TH1D*)pmfile->Get("hist_multi");
-  auto pmhist_p = (TH1D*)pmfile->Get("hist_multi_p");
-  auto pmhist_pi = (TH1D*)pmfile->Get("hist_multi_pi");
-  double pmscale = 1. / 999. * 0.47 * 0.99;
-  pmhist->Scale(pmscale);
-  pmhist_p->Scale(pmscale);
-  pmhist_pi->Scale(pmscale);
-
-  // Upstream WAGASCI background
-  // TString uwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_uwg_20220722/output/bg_dist.root";
-  TString uwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/uwg/output/bg_dist.root";
-  TFile *uwgfile = new TFile(uwgfilename, "read");
-  auto uwghist = (TH1D*)uwgfile->Get("hist_multi");
-  auto uwghist_p = (TH1D*)uwgfile->Get("hist_multi_p");
-  auto uwghist_pi = (TH1D*)uwgfile->Get("hist_multi_pi");
-  double uwgscale = 1. / 999. * 0.47 * 0.99;
-  uwghist->Scale(uwgscale);
-  uwghist_p->Scale(uwgscale);
-  uwghist_pi->Scale(uwgscale);
-
-  // Downstream WAGASCI backgorund
-  // TString dwgfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_dwg_20220712/output/bg_dist.root";
-  TString dwgfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/dwg/output/bg_dist.root";
-  TFile *dwgfile = new TFile(dwgfilename, "read");
-  auto dwghist = (TH1D*)dwgfile->Get("hist_multi");
-  auto dwghist_p = (TH1D*)dwgfile->Get("hist_multi_p");
-  auto dwghist_pi = (TH1D*)dwgfile->Get("hist_multi_pi");
-  double dwgscale = 1. / 999. * 0.47 * 0.99;
-  dwghist->Scale(dwgscale);
-  dwghist_p->Scale(dwgscale);
-  dwghist_pi->Scale(dwgscale);
-
-  // Baby MIND background (negligible)
-  // TString bmfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_bm_20220711/output/bg_dist.root";
-  // TFile *bmfile = new TFile(bmfilename, "read");
-  // auto bmhist = (TH1D*)bmfile->Get("hist_multi");
-  // auto bmhist_p = (TH1D*)bmfile->Get("hist_multi_p");
-  // auto bmhist_pi = (TH1D*)bmfile->Get("hist_multi_pi");
-  // double bmscale = 1. / 999. * 0.47 * 0.99;
-  // bmhist->Scale(bmscale);
-
-  // Other ECC background
-  // TString otherfilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220505/output/bg_dist.root";
-  TString otherfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/ecc/output/bg_dist.root";
-  TFile *otherfile = new TFile(otherfilename, "read");
-  auto otherhist = (TH1D*)otherfile->Get("hist_multi");
-  auto otherhist_p = (TH1D*)otherfile->Get("hist_multi_p");
-  auto otherhist_pi = (TH1D*)otherfile->Get("hist_multi_pi");
-  double otherscale = 1. / 990. * 0.47 * 0.99;
-  otherhist->Scale(otherscale);
-  otherhist_p->Scale(otherscale);
-  otherhist_pi->Scale(otherscale);
-
-  // Wall background
-  // TString wallfilename = "/hsm/nu/ninja/pra_tmp/wall_mc_20220616/output/bg_dist.root";
-  TString wallfilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/wall/output/bg_dist.root";
-  TFile *wallfile = new TFile(wallfilename, "read");
-  auto wallhist = (TH1D*)wallfile->Get("hist_multi");
-  auto wallhist_p = (TH1D*)wallfile->Get("hist_multi_p");
-  auto wallhist_pi = (TH1D*)wallfile->Get("hist_multi_pi");
-  double wallscale = 1. / 49999. * 0.47 * 0.99;
-  wallhist->Scale(wallscale);
-  wallhist_p->Scale(wallscale);
-  wallhist_pi->Scale(wallscale);
-
-  TH1D *hist_bg_ext = new TH1D("hist_bg_ext", "", total_multi_bin_size-1, total_multi_bins);
-  TList *ext_list = new TList();
-  ext_list->Add(pmhist);
-  ext_list->Add(uwghist);
-  ext_list->Add(dwghist);
-  // ext_list->Add(bmhist);
-  ext_list->Add(otherhist);
-  ext_list->Add(wallhist);
-  hist_bg_ext->Merge(ext_list);
-  hist_bg_ext->SetFillStyle(3011);
-  hist_bg_ext->SetFillColor(kGreen);
-
-  TH1D *hist_bg_ext_p = new TH1D("hist_bg_ext_p", "", hadron_multi_bin_size-1, hadron_multi_bins);
-  TList *ext_list_p = new TList();
-  ext_list_p->Add(pmhist_p);
-  ext_list_p->Add(uwghist_p);
-  ext_list_p->Add(dwghist_p);
-  ext_list_p->Add(otherhist_p);
-  ext_list_p->Add(wallhist_p);
-  hist_bg_ext_p->Merge(ext_list_p);
-  hist_bg_ext_p->SetFillStyle(3011);
-  hist_bg_ext_p->SetFillColor(kGreen);
-
-  TH1D *hist_bg_ext_pi = new TH1D("hist_bg_ext_pi", "", hadron_multi_bin_size-1, hadron_multi_bins);
-  TList *ext_list_pi = new TList();
-  ext_list_pi->Add(pmhist_pi);
-  ext_list_pi->Add(uwghist_pi);
-  ext_list_pi->Add(dwghist_pi);
-  ext_list_pi->Add(otherhist_pi);
-  ext_list_pi->Add(wallhist_pi);
-  hist_bg_ext_pi->Merge(ext_list_pi);
-  hist_bg_ext_pi->SetFillStyle(3011);
-  hist_bg_ext_pi->SetFillColor(kGreen);
-
-
+ 
   // Iron (+ emulsion?) interaction background
-  // TString fefilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_fe_20220712/output/bg_dist.root";
-  TString fefilename = "/group/nu/ninja/work/odagawa/20220930-iron-mc-new-matching/output/bg_dist.root";
+  TString fefilename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/fe/output/bg_dist.root";
   TFile *fefile = new TFile(fefilename, "read");
   auto fehist = (TH1D*)fefile->Get("hist_multi");
   auto fehist_p = (TH1D*)fefile->Get("hist_multi_p");
@@ -175,8 +69,7 @@ void StackModeMulti() {
   fehist_pi->Scale(fescale);
 
   // Anti neutrino interaction background
-  // TString anufilename = "/hsm/nu/ninja/pra_tmp/mc_tmp_anu_20220714/output/bg_dist.root";
-  TString anufilename = "/group/nu/ninja/work/odagawa/20220930-bkg-mc-new-matching/anu/output/bg_dist.root";
+  TString anufilename = "/hsm/nu/ninja/pra_tmp/CC0pi_20221213/anu/output/bg_dist.root";
   TFile *anufile = new TFile(anufilename, "read");
   auto anuhist = (TH1D*)anufile->Get("hist_multi");
   auto anuhist_p = (TH1D*)anufile->Get("hist_multi_p");
@@ -269,11 +162,8 @@ void StackModeMulti() {
   hs_water_proton_multi->Add(hist_water_proton_misid_multi);
   hs_water_pion_multi->Add(hist_water_pion_misid_multi);
 
-  // hs_water_multi->Add(hist_bg_ext);
   hs_water_multi->Add(hist_bg_int);
-  // hs_water_proton_multi->Add(hist_bg_ext_p);
   hs_water_proton_multi->Add(hist_bg_int_p);
-  // hs_water_pion_multi->Add(hist_bg_ext_pi);
   hs_water_pion_multi->Add(hist_bg_int_pi);
   for ( int i = 1; i < num_ninja_mode; i++ ) {
     hs_water_multi->Add(hist_water_multi[mode_stack_order[i]]);
@@ -282,7 +172,7 @@ void StackModeMulti() {
   }
 
 
-  TFile *ofile = new TFile("~/stack_mode.root", "recreate");
+  TFile *ofile = new TFile("~/stack_mode_0pi.root", "recreate");
 
   ofile->cd();
   hs_water_multi->Write();

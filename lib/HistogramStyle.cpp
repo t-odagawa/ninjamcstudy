@@ -42,3 +42,51 @@ Int_t GetNinjaModeId(Int_t mode) {
     return -1;
   }
 }
+
+Double_t GetTotalMultiplicityWeight(Int_t multiplicity) {
+  if ( multiplicity < total_multi_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < total_multi_bin_size; ibin++ ) {
+    if ( multiplicity < total_multi_bins[ibin] ) return total_multi_bin_weight[ibin];
+  }
+  return 1.;
+}
+
+Double_t GetHadronMultiplicityWeight(Int_t multiplicity) {
+  if ( multiplicity < hadron_multi_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < hadron_multi_bin_size; ibin++ ) {
+    if ( multiplicity < hadron_multi_bins[ibin] ) return hadron_multi_bin_weight[ibin];
+  }
+  return 1.;
+}
+
+Double_t GetMuonMomentumWeight(Double_t momentum) {
+  if ( momentum < muon_mom_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < muon_mom_bin_size; ibin++ ) {
+    if ( momentum < muon_mom_bins[ibin] ) return muon_mom_bin_weight[ibin];
+  }
+  return 1.;
+}
+
+Double_t GetHadronMomentumWeight(Double_t momentum) {
+  if ( momentum < hadron_mom_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < hadron_mom_bin_size; ibin++ ) {
+    if ( momentum < hadron_mom_bins[ibin] ) return hadron_mom_bin_weight[ibin];
+  }
+  return 1.;
+}
+
+Double_t GetMuonDegWeight(Double_t angle) {
+  if ( angle < muon_deg_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < muon_deg_bin_size; ibin++ ) {
+    if ( angle < muon_deg_bins[ibin] ) return muon_deg_bin_weight[ibin];
+  }
+  return 1.;
+}
+
+Double_t GetHadronDegWeight(Double_t angle) {
+  if ( angle < hadron_deg_bins[0] ) return 1.;
+  for ( int ibin = 1; ibin < hadron_deg_bin_size; ibin++ ) {
+    if ( angle < hadron_deg_bins[ibin] ) return hadron_deg_bin_weight[ibin];
+  }
+  return 1.;
+}

@@ -14,9 +14,12 @@
 
 #include <B2Reader.hh>
 #include <B2SpillSummary.hh>
+#include <B2EventSummary.hh>
+#include <B2VertexSummary.hh>
 
 #include <McsClass.hpp>
 
+#include "HistogramStyle.hpp"
 #include "AnalyzeVertex.hpp"
 
 namespace logging = boost::log;
@@ -50,7 +53,19 @@ void AnalyzeVertex(std::string b2filename,
 					25, -250.e3, 0., 25, 0., 250.e3);
   TH2D *hist_recon_vertex_yz = new TH2D("hist_recon_vertex_yz", "Reconstructed film position; z [#mum];y [#mum]",
 					25, -250.e3, 0., 25, 0., 250.e3);
+  // Z distributions
 
+  // Muon is correctly id-ed
+  TH1D *hist_recon_vertex_pl[num_ninja_mode];
+  for ( int i = 0; i < num_ninja_mode; i++ ) {
+    hist_recon_vertex_pl[i] = new TH1D(Form("hist_vertex_pl_%d", i), "",
+				       133, 0.5, 133.5);
+    hist_recon_vertex_pl[i]->SetFillColor(mode_color[i]);
+    hist_recon_vertex_pl[i]->SetFillStyle(mode_style[i]);
+  }
+  // Muon is mis-id-ed
+  TH1D *hist_recon_vertex_pl_muon_misid = new TH1D("hist_recon_vertex_pl_muon_misid", "",
+						   133, 0.5, 133.5);
 
   TH1D *hist_resolution_x = new TH1D("hist_resolution_x", "Horizontal positional resolution;#Deltax [#mum];Entries", 100, -500, 500);
   TH1D *hist_resolution_y = new TH1D("hist_resolution_y", "Vertical positional resolution;#Deltay [#mum];Entries", 100, -500, 500);
@@ -81,13 +96,25 @@ void AnalyzeVertex(std::string b2filename,
 
     reader.ReadSpill(ev.groupid);
     auto &spill_summary = reader.GetSpillSummary();
-    
+    auto it_event = spill_summary.BeginTrueEvent();
+    const auto *event = it_event.Next();
+
+    auto &vertex = event->GetPrimaryVertex();
+    int mode_id = GetNinjaModeId(vertex.GetInteractionType());
+
     if ( ev.chains.empty() ) continue;
 
     int true_ecc_id = ev.ecc_id / 10;
     int ecc_id = ev.ecc_id % 10;
     int true_vertex_pl = ev.vertex_pl / 1000;
     int vertex_pl = ev.vertex_pl % 1000;
+
+    bool muon_correct_flag = false;
+    for ( auto chain : ev.chains ) {
+      if ( chain.particle_flag % 10000 == 13 &&
+	   chain.particle_flag / 10000 == 13 )
+	muon_correct_flag = true;
+    }
 
     if ( ecc_id == 0 ) continue;
 
@@ -106,6 +133,11 @@ void AnalyzeVertex(std::string b2filename,
       hist_resolution_z->Fill(ev.recon_vertex_position[2] - ev.true_vertex_position[2],
 			      ev.weight);
       
+      if ( muon_correct_flag )
+	hist_recon_vertex_pl[mode_id]->Fill(vertex_pl, ev.weight);
+      else 
+	hist_recon_vertex_pl_muon_misid->Fill(vertex_pl, ev.weight);
+
       hist_target_material->Fill(ev.vertex_material, ev.weight);
     }
 
@@ -134,6 +166,9 @@ void AnalyzeVertex(std::string b2filename,
   hist_resolution_x->Write();
   hist_resolution_y->Write();
   hist_resolution_z->Write();
+  for ( int i = 0; i < num_ninja_mode; i++ )
+    hist_recon_vertex_pl[i]->Write();
+  hist_recon_vertex_pl_muon_misid->Write();
   hist_target_material->Write();
   hist_vertex_pl_diff->Write();
   hist_vertex_pl_recon_true->Write();

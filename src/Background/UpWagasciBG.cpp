@@ -17,6 +17,7 @@
 #include <McsClass.hpp>
 
 #include "DrawConst.hpp"
+#include "HistogramStyle.hpp"
 
 namespace logging = boost::log;
 namespace fs = boost::filesystem;
@@ -46,33 +47,44 @@ int main (int argc, char* argv[]) {
   TH1D *hist_recon_vertex_z = new TH1D("hist_recon_vertex_z", "Reconstructed depth;z [#mum];Entries", 25, -250.e3, 0.);
   TH2D *hist_recon_vertex_xy = new TH2D("hist_recon_vertex_xy", "Reconstructed film position;x [#mum];y [#mum]", 250, 0., 250.e3, 250, 0., 250.e3);
 
-  TH1D *hist_multi = new TH1D("hist_multi", "Multiplicity;# of tracks;Entries", 10, 0.5, 10.5);
+  TH1D *hist_vertex_pl = new TH1D("hist_vertex_pl", "", 133, 0.5, 133.5);
+
+  TH1D *hist_multi = new TH1D("hist_multi", "Multiplicity;# of tracks;Entries", total_multi_bin_size - 1, total_multi_bins);
   TH2D *hist_multi_z = new TH2D("hist_multi_z", ";# of tracks;Reconstructed depth [#mum]", 250, -250.e3, 0., 5, 0.5, 5.5);
 
-  TH1D *hist_multi_p = new TH1D("hist_multi_p", "", 10, -0.5, 9.5);
-  TH1D *hist_multi_pi = new TH1D("hist_multi_pi", "", 10, -0.5, 9.5);
+  TH1D *hist_multi_p = new TH1D("hist_multi_p", "", hadron_multi_bin_size - 1, hadron_multi_bins);
+  TH1D *hist_multi_pi = new TH1D("hist_multi_pi", "", hadron_multi_bin_size - 1, hadron_multi_bins);
+  TH1D *hist_multi_other = new TH1D("hist_multi_other", "", hadron_multi_bin_size - 1, hadron_multi_bins);
 
-  TH1D *hist_uwg_bg_mu_mom = new TH1D("hist_uwg_bg_mu_mom", "", 20, 0., 2000.);
-  TH1D *hist_uwg_bg_mu_mom_mcs = new TH1D("hist_uwg_bg_mu_mom_mcs", "", 20, 0., 2000.);
-  TH1D *hist_uwg_bg_mu_mom_range = new TH1D("hist_uwg_bg_mu_mom_range", "", 20, 0., 2000.);
+  TH1D *hist_uwg_bg_mu_mom = new TH1D("hist_uwg_bg_mu_mom", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_uwg_bg_mu_mom_mcs = new TH1D("hist_uwg_bg_mu_mom_mcs", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_uwg_bg_mu_mom_range = new TH1D("hist_uwg_bg_mu_mom_range", "", muon_mom_bin_size - 1, muon_mom_bins);
 
-  TH1D *hist_uwg_bg_mu_mom_mcs_all = new TH1D("hist_uwg_bg_mu_mom_mcs_all", "", 20, 0., 2000.);
+  TH1D *hist_uwg_bg_mu_mom_mcs_all = new TH1D("hist_uwg_bg_mu_mom_mcs_all", "", muon_mom_bin_size - 1, muon_mom_bins);
 
-  TH1D *hist_uwg_bg_mu_cos = new TH1D("hist_uwg_bg_mu_cos", "", 20, 0., 1.);
-  TH1D *hist_uwg_bg_mu_deg = new TH1D("hist_uwg_bg_mu_deg", "", 18, 0., 90.);
+  TH1D *hist_uwg_bg_mu_mom_true = new TH1D("hist_uwg_bg_mu_mom_true", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_uwg_bg_mu_mom_true_stop = new TH1D("hist_uwg_bg_mu_mom_true_stop", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_uwg_bg_mu_mom_true_nonstop = new TH1D("hist_uwg_bg_mu_mom_true_nonstop", "", muon_mom_bin_size - 1, muon_mom_bins);
 
-  TH1D *hist_uwg_bg_pi_mom = new TH1D("hist_uwg_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_uwg_bg_pi_mom_mcs = new TH1D("hist_uwg_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+  TH1D *hist_uwg_bg_mu_cos = new TH1D("hist_uwg_bg_mu_cos", "", muon_cos_bin_size - 1, muon_cos_bins);
+  TH1D *hist_uwg_bg_mu_deg = new TH1D("hist_uwg_bg_mu_deg", "", muon_deg_bin_size - 1, muon_deg_bins);
+
+  TH1D *hist_uwg_bg_pi_mom = new TH1D("hist_uwg_bg_pi_mom", ";Reconstructed momentum [MeV/c];Entries", hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_uwg_bg_pi_mom_mcs = new TH1D("hist_uwg_bg_pi_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_uwg_bg_pi_mom_range = new TH1D("hist_uwg_bg_pi_mom_range", ";Reconstructed momentum [MeV/c];Entries",
-					   15, 0., 1500.);
-  TH1D *hist_uwg_bg_p_mom = new TH1D("hist_uwg_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
-  TH1D *hist_uwg_bg_p_mom_mcs = new TH1D("hist_uwg_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", 15, 0., 1500.);
+					    hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_uwg_bg_p_mom = new TH1D("hist_uwg_bg_p_mom", ";Reconstructed momentum [MeV/c];Entries", hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_uwg_bg_p_mom_mcs = new TH1D("hist_uwg_bg_p_mom_mcs", ";Reconstructed momentum [MeV/c];Entries", hadron_mom_bin_size - 1, hadron_mom_bins);
   TH1D *hist_uwg_bg_p_mom_range = new TH1D("hist_uwg_bg_p_mom_range", ";Reconstructed momentum [MeV/c];Entries",
-					  15, 0., 1500.);
-  TH1D *hist_uwg_bg_pi_cos = new TH1D("hist_uwg_bg_pi_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
-  TH1D *hist_uwg_bg_pi_deg = new TH1D("hist_uwg_bg_pi_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
-  TH1D *hist_uwg_bg_p_cos = new TH1D("hist_uwg_bg_p_cos", ";Reconstructed angle;Entries", 40, -1., 1.);
-  TH1D *hist_uwg_bg_p_deg = new TH1D("hist_uwg_bg_p_deg", ";Reconstructed angle [degree];Entries", 36, 0., 180.);
+					   hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_uwg_bg_pi_cos = new TH1D("hist_uwg_bg_pi_cos", ";Reconstructed angle;Entries", hadron_cos_bin_size - 1, hadron_cos_bins);
+  TH1D *hist_uwg_bg_pi_deg = new TH1D("hist_uwg_bg_pi_deg", ";Reconstructed angle [degree];Entries", hadron_deg_bin_size - 1, hadron_deg_bins);
+  TH1D *hist_uwg_bg_p_cos = new TH1D("hist_uwg_bg_p_cos", ";Reconstructed angle;Entries", hadron_cos_bin_size - 1, hadron_cos_bins);
+  TH1D *hist_uwg_bg_p_deg = new TH1D("hist_uwg_bg_p_deg", ";Reconstructed angle [degree];Entries", hadron_deg_bin_size - 1, hadron_deg_bins);
+
+  TH1D *hist_uwg_bg_other_mom_mcs = new TH1D("hist_uwg_bg_other_mom_mcs", "", hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_uwg_bg_other_cos = new TH1D("hist_uwg_bg_other_cos", "", hadron_cos_bin_size - 1, hadron_cos_bins);
+  TH1D *hist_uwg_bg_other_deg = new TH1D("hist_uwg_bg_other_deg", "", hadron_deg_bin_size - 1, hadron_deg_bins);
 
   TH1D *hist_side_recon_vertex_x = new TH1D("hist_side_recon_vertex_x", "Reconstructed horizontal position;x [#mum];Entries", 25, 0, 250.e3);
   TH1D *hist_side_recon_vertex_y = new TH1D("hist_side_recon_vertex_y", "Reconstructed vertical position;y [#mum];Entries", 25, 0., 250.e3);
@@ -100,6 +112,7 @@ int main (int argc, char* argv[]) {
       hist_recon_vertex_y->Fill(ev.recon_vertex_position[1], ev.weight);
       hist_recon_vertex_z->Fill(ev.recon_vertex_position[2], ev.weight);
       hist_recon_vertex_xy->Fill(ev.recon_vertex_position[0], ev.recon_vertex_position[1], ev.weight);
+      hist_vertex_pl->Fill(ev.vertex_pl % 1000, ev.weight);
       hist_multi->Fill(ev.chains.size(), ev.weight);
       hist_multi_z->Fill(ev.recon_vertex_position[2], ev.chains.size(), ev.weight);
 
@@ -113,6 +126,7 @@ int main (int argc, char* argv[]) {
 
       hist_multi_p->Fill((double)num_proton, ev.weight);
       hist_multi_pi->Fill((double)num_pion, ev.weight);
+      hist_multi_other->Fill(ev.chains.size() - num_proton - num_pion - 1, ev.weight);
 
       // ループが分かれているのは突貫工事だから
       for ( auto chain : ev.chains ) {
@@ -144,20 +158,32 @@ int main (int argc, char* argv[]) {
 	double cosine = std::cos(theta_deg * TMath::DegToRad());
 
 	if ( recon_particle_id == 13 ) {
+
+	  double mu_mom_true = -1.;
+	  for ( auto true_chain : ev.true_chains ) {
+	    if ( chain.chainid == true_chain.chainid ) {
+	      mu_mom_true = true_chain.bm_range_mom;
+	      break;
+	    }
+	  }
+
 	  if ( chain.stop_flag == 1 ) {
 	    momentum = chain.bm_range_mom;
 	    hist_uwg_bg_mu_mom_range->Fill(momentum, ev.weight);
+	    hist_uwg_bg_mu_mom_true_stop->Fill(mu_mom_true, ev.weight);
 	  }
 	  else if ( chain.stop_flag == 0 ) {
 	    momentum = chain.ecc_mcs_mom[0];
 	    hist_uwg_bg_mu_mom_mcs->Fill(momentum, ev.weight);
+	    hist_uwg_bg_mu_mom_true_nonstop->Fill(mu_mom_true, ev.weight);
 	  }
 	  hist_uwg_bg_mu_mom->Fill(momentum, ev.weight);
 	  hist_uwg_bg_mu_deg->Fill(theta_deg, ev.weight);
 	  hist_uwg_bg_mu_cos->Fill(cosine, ev.weight);
 
 	  hist_uwg_bg_mu_mom_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
-
+	  
+	  hist_uwg_bg_mu_mom_true->Fill(mu_mom_true, ev.weight);
 	}
 	else if ( recon_particle_id == 2212 ) {
 	  if ( chain.stop_flag == 0 ) {
@@ -179,12 +205,21 @@ int main (int argc, char* argv[]) {
 	    hist_uwg_bg_pi_mom_mcs->Fill(momentum, ev.weight);
 	  }
 	  else if ( chain.stop_flag == 2 ) {
-	    momentum = chain.ecc_range_mom[0];
+	    momentum = chain.bm_curvature_mom;
 	    hist_uwg_bg_pi_mom->Fill(momentum, ev.weight);
-	    hist_uwg_bg_pi_mom_range->Fill(momentum, ev.weight);
+	    hist_uwg_bg_pi_mom_mcs->Fill(momentum, ev.weight);
+	    // momentum = chain.ecc_range_mom[0];
+	    // hist_uwg_bg_pi_mom->Fill(momentum, ev.weight);
+	    // hist_uwg_bg_pi_mom_range->Fill(momentum, ev.weight);
 	  }
 	  hist_uwg_bg_pi_cos->Fill(cosine, ev.weight);
 	  hist_uwg_bg_pi_deg->Fill(theta_deg, ev.weight);
+	}
+	else {
+	  momentum = chain.ecc_mcs_mom[0];
+	  hist_uwg_bg_other_mom_mcs->Fill(momentum, ev.weight);
+	  hist_uwg_bg_other_cos->Fill(cosine, ev.weight);
+	  hist_uwg_bg_other_deg->Fill(theta_deg, ev.weight);
 	}
       }
     }
@@ -212,11 +247,13 @@ int main (int argc, char* argv[]) {
   hist_recon_vertex_y->Write();
   hist_recon_vertex_z->Write();
   hist_recon_vertex_xy->Write();
+  hist_vertex_pl->Write();
   hist_multi->Write();
   hist_multi_z->Write();
 
   hist_multi_p->Write();
   hist_multi_pi->Write();
+  hist_multi_other->Write();
 
   hist_uwg_bg_mu_mom->Write();
   hist_uwg_bg_mu_mom_mcs->Write();
@@ -225,6 +262,10 @@ int main (int argc, char* argv[]) {
   hist_uwg_bg_mu_deg->Write();
 
   hist_uwg_bg_mu_mom_mcs_all->Write();
+
+  hist_uwg_bg_mu_mom_true->Write();
+  hist_uwg_bg_mu_mom_true_stop->Write();
+  hist_uwg_bg_mu_mom_true_nonstop->Write();
 
   hist_uwg_bg_pi_mom->Write();
   hist_uwg_bg_pi_mom_mcs->Write();
@@ -236,6 +277,9 @@ int main (int argc, char* argv[]) {
   hist_uwg_bg_pi_deg->Write();
   hist_uwg_bg_p_cos->Write();
   hist_uwg_bg_p_deg->Write();
+  hist_uwg_bg_other_mom_mcs->Write();
+  hist_uwg_bg_other_cos->Write();
+  hist_uwg_bg_other_deg->Write();
 
   hist_side_recon_vertex_x->Write();
   hist_side_recon_vertex_y->Write();

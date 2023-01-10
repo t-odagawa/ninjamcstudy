@@ -45,6 +45,7 @@ void AnalyzeMomentum(std::string b2filename,
   TFile *outputfile = new TFile((TString)outputfilename, "recreate");
   BOOST_LOG_TRIVIAL(info) << "Output filename : " << outputfilename;
 
+  // muon
   TH1D *hist_muon_mom = new TH1D("hist_muon_mom",
 				 "Muon reconstructed momentum;p_{#mu} [MeV/c];Entries",
 				 muon_mom_bin_size - 1, muon_mom_bins);
@@ -69,6 +70,7 @@ void AnalyzeMomentum(std::string b2filename,
   TH2D *hist_muon_mom_recon_true_mcs_all = new TH2D("hist_muon_mom_recon_true_mcs_all",
 						    "", 50, 0., 2000., 50, 0., 2000.);
 
+  // pion & proton & other
   TH1D *hist_pion_mom = new TH1D("hist_pion_mom",
 				 "Pion reconstructed momentum;p_{#pi} [MeV/c];Entries",
 				 hadron_mom_bin_size - 1, hadron_mom_bins);
@@ -87,6 +89,9 @@ void AnalyzeMomentum(std::string b2filename,
   TH1D *hist_proton_mom_range = new TH1D("hist_proton_mom_range",
 					 "Proton range reconstructed momentum;p_{p, range} [MeV/c];Entries",
 					 hadron_mom_bin_size - 1, hadron_mom_bins);
+  TH1D *hist_other_mom_mcs = new TH1D("hist_other_mom_mcs",
+				      "Non-id hadron MCS reconstructed momentum;p_{MCS, M=m_{#mu}} [MeV/];Entries",
+				      hadron_mom_bin_size - 1, hadron_mom_bins);
   TH2D *hist_pion_mom_recon_true = new TH2D("hist_pion_mom_recon_true",
 					    "Pion momentum;p_{#pi, true} [MeV/c];p_{#pi, recon} [MeV/c]",
 					    50, 0., 1500., 50, 0., 1500.);
@@ -117,6 +122,20 @@ void AnalyzeMomentum(std::string b2filename,
 					      muon_mom_bin_size - 1, muon_mom_bins);
 
   TH1D *hist_muon_mom_single_mcs_all = new TH1D("hist_muon_mom_single_mcs_all","", muon_mom_bin_size - 1, muon_mom_bins);
+
+  // true distributions
+  TH1D *hist_muon_mom_true = new TH1D("hist_muon_mom_true", "Muon true momentum;p_{#mu} [MeV/c];Entries",
+				      muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_mom_true_stop = new TH1D("hist_muon_mom_true_stop", "Muon true momentum (BM stop);p_{#mu} [MeV/c];Entries",
+					   muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_mom_true_nonstop = new TH1D("hist_muon_mom_true_nonstop", "Muon true momentum (BM non stop);p_{#mu} [MeV/c];Entries",
+					      muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_mom_true_single = new TH1D("hist_muon_mom_true_single", "Muon true momentum;p_{#mu} [MeV/c]; Entries",
+					     muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_mom_true_single_stop = new TH1D("hist_muon_mom_true_single_stop", "",
+						  muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_mom_true_single_nonstop = new TH1D("hist_muon_mom_true_single_nonstop", "",
+						     muon_mom_bin_size - 1, muon_mom_bins);
 
   // Muon is correctly id-ed
   TH1D *hist_mode_muon_mom[num_ninja_mode];
@@ -166,6 +185,22 @@ void AnalyzeMomentum(std::string b2filename,
 
   }
 
+  // True distributions
+  TH1D *hist_mode_muon_mom_true[num_ninja_mode];
+  TH1D *hist_mode_muon_mom_true_stop[num_ninja_mode];
+  TH1D *hist_mode_muon_mom_true_nonstop[num_ninja_mode];
+  for ( int i = 0; i < num_ninja_mode; i++ ) {
+    hist_mode_muon_mom_true[i] = new TH1D(Form("hist_muon_mom_true_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
+    hist_mode_muon_mom_true[i]->SetFillColor(mode_color[i]);
+    hist_mode_muon_mom_true[i]->SetFillStyle(mode_style[i]);
+    hist_mode_muon_mom_true_stop[i] = new TH1D(Form("hist_muon_mom_true_stop_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
+    hist_mode_muon_mom_true_stop[i]->SetFillColor(mode_color[i]);
+    hist_mode_muon_mom_true_stop[i]->SetFillStyle(mode_style[i]);
+    hist_mode_muon_mom_true_nonstop[i] = new TH1D(Form("hist_muon_mom_true_nonstop_%d", i), "", muon_mom_bin_size - 1, muon_mom_bins);
+    hist_mode_muon_mom_true_nonstop[i]->SetFillColor(mode_color[i]);
+    hist_mode_muon_mom_true_nonstop[i]->SetFillStyle(mode_style[i]);
+  }
+
   // Muon is mis-id-ed
   TH1D *hist_muon_misid_mom = new TH1D("hist_muon_misid_mom",
 				       "\"Muon\" reconstructed momentum;p_{#mu} [MeV/c];Entries",
@@ -196,6 +231,12 @@ void AnalyzeMomentum(std::string b2filename,
 						    hadron_mom_bin_size - 1, hadron_mom_bins);
 
   TH1D *hist_muon_misid_mom_mcs_all = new TH1D("hist_muon_misid_mom_mcs_all","",20,0.,2000.);
+
+  // True distributions
+  TH1D *hist_muon_misid_mom_true = new TH1D("hist_muon_misid_mom_true", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_misid_mom_true_stop = new TH1D("hist_muon_misid_mom_true_stop", "", muon_mom_bin_size - 1, muon_mom_bins);
+  TH1D *hist_muon_misid_mom_true_nonstop = new TH1D("hist_muon_misid_mom_true_nonstop", "",
+						    muon_mom_bin_size - 1, muon_mom_bins);
 
   // Muon is correctly id-ed but partner is not
   TH1D *hist_proton_misid_mom = new TH1D("hist_proton_misid_mom",
@@ -314,6 +355,8 @@ void AnalyzeMomentum(std::string b2filename,
 	}
       }
 
+      if ( ev.chains.size() != num_proton_water + 1 ) continue;
+
       for ( auto chain : ev.chains ) {
 	
 	// search corresponding true chain
@@ -373,12 +416,17 @@ void AnalyzeMomentum(std::string b2filename,
 	// For packing evaluation
 	if ( ev.chains.size() == 1 ) {
 	  if ( particle_id == 13 ) {
-	    if ( chain.stop_flag == 1 ) 
+	    if ( chain.stop_flag == 1 ) {
 	      hist_muon_mom_single_range->Fill(recon_momentum, ev.weight);
-	    else if ( chain.stop_flag == 0 ) 
+	      hist_muon_mom_true_single_stop->Fill(true_momentum, ev.weight);
+	    }
+	    else if ( chain.stop_flag == 0 ) {
 	      hist_muon_mom_single_mcs->Fill(recon_momentum, ev.weight);
+	      hist_muon_mom_true_single_nonstop->Fill(true_momentum, ev.weight);
+	    }
 
 	    hist_muon_mom_single->Fill(recon_momentum, ev.weight);
+	    hist_muon_mom_true_single->Fill(true_momentum, ev.weight);
 	    
 	    hist_muon_mom_single_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
 	  }
@@ -392,6 +440,9 @@ void AnalyzeMomentum(std::string b2filename,
 	      hist_mode_muon_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_muon_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
 	      hist_flux_mu_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+
+	      hist_muon_mom_true_stop->Fill(true_momentum, ev.weight);
+	      hist_mode_muon_mom_true_stop[mode_id]->Fill(true_momentum, ev.weight);
 	    }
 	    else if ( chain.stop_flag == 0 ) {
 	      hist_muon_mom_mcs->Fill(recon_momentum, ev.weight);
@@ -399,6 +450,9 @@ void AnalyzeMomentum(std::string b2filename,
 	      hist_mode_muon_mom_mcs[mode_id]->Fill(recon_momentum, ev.weight);
 	      hist_muon_mom_ang_mcs->Fill(recon_momentum, theta_deg, ev.weight);
 	      hist_flux_mu_mcs->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+
+	      hist_muon_mom_true_nonstop->Fill(true_momentum, ev.weight);
+	      hist_mode_muon_mom_true_nonstop[mode_id]->Fill(true_momentum, ev.weight);
 	    }
 	    
 	    hist_muon_mom->Fill(recon_momentum, ev.weight);
@@ -413,6 +467,8 @@ void AnalyzeMomentum(std::string b2filename,
 
 	    hist_flux_mu_total->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
 
+	    hist_muon_mom_true->Fill(true_momentum, ev.weight);
+	    hist_mode_muon_mom_true[mode_id]->Fill(true_momentum, ev.weight);
 	  }
 	  else if ( particle_id == 2212 ) {
 	    if ( particle_id == true_particle_id ) {
@@ -455,12 +511,17 @@ void AnalyzeMomentum(std::string b2filename,
 	  }
 	  else if ( particle_id == 211 ) {
 	    if ( particle_id == true_particle_id ) {
-	      if ( chain.stop_flag == 2 ) {
-		hist_pion_mom_range->Fill(recon_momentum, ev.weight);
-		hist_pion_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
-		hist_mode_pion_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
-		hist_pion_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
-		hist_flux_pi_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+	      if ( chain.stop_flag == 2 ) { // all pions are reconstructed using MCS
+		// hist_pion_mom_range->Fill(recon_momentum, ev.weight);
+		// hist_pion_mom_recon_true_range->Fill(true_momentum, recon_momentum, ev.weight);
+		// hist_mode_pion_mom_range[mode_id]->Fill(recon_momentum, ev.weight);
+		// hist_pion_mom_ang_range->Fill(recon_momentum, theta_deg, ev.weight);
+		// hist_flux_pi_range->Fill(recon_momentum, ev.nu_energy / 1000., ev.weight);
+		hist_pion_mom_mcs->Fill(recon_momentum, ev.weight);
+		hist_pion_mom_recon_true_mcs->Fill(true_momentum, recon_momentum, ev.weight);
+		hist_mode_pion_mom_mcs[mode_id]->Fill(recon_momentum, ev.weight);
+		hist_pion_mom_ang_mcs->Fill(recon_momentum, theta_deg, ev.weight);
+		hist_flux_pi_mcs->Fill(recon_momentum, ev.nu_energy / 1000, ev.weight);
 	      }
 	      else if ( chain.stop_flag == 0 ) {
 		hist_pion_mom_mcs->Fill(recon_momentum, ev.weight);
@@ -480,22 +541,32 @@ void AnalyzeMomentum(std::string b2filename,
 	    }
 	    else {
 	      if ( chain.stop_flag == 2 )
-		hist_pion_misid_mom_range->Fill(recon_momentum, ev.weight);
+		// hist_pion_misid_mom_range->Fill(recon_momentum, ev.weight);
+		hist_pion_misid_mom_mcs->Fill(recon_momentum, ev.weight);
 	      else if ( chain.stop_flag == 0 )
 		hist_pion_misid_mom_mcs->Fill(recon_momentum, ev.weight);
 
 	      hist_pion_misid_mom->Fill(recon_momentum, ev.weight);
 	    }
 	  }
+	  else {
+	    recon_momentum = chain.ecc_mcs_mom[0];
+	    hist_other_mom_mcs->Fill(recon_momentum, ev.weight);
+	  }
 	}
-	else {
+	else { // muon mis-id
 	  if ( particle_id == 13 ) {
-	    if ( chain.stop_flag == 1 ) 
+	    if ( chain.stop_flag == 1 ) {
 	      hist_muon_misid_mom_range->Fill(recon_momentum, ev.weight);
-	    else if ( chain.stop_flag == 0 )
+	      hist_muon_misid_mom_true_stop->Fill(true_momentum, ev.weight);
+	    }
+	    else if ( chain.stop_flag == 0 ) {
 	      hist_muon_misid_mom_mcs->Fill(recon_momentum, ev.weight);
-
+	      hist_muon_misid_mom_true_nonstop->Fill(true_momentum, ev.weight);
+	    }
 	    hist_muon_misid_mom->Fill(recon_momentum, ev.weight);
+	    hist_muon_misid_mom_true->Fill(true_momentum, ev.weight);
+
 	    hist_muon_misid_mom_mcs_all->Fill(chain.ecc_mcs_mom[0], ev.weight);
 	  }
 	  else if ( particle_id == 2212 ) {
@@ -508,11 +579,16 @@ void AnalyzeMomentum(std::string b2filename,
 	  }
 	  else if ( particle_id == 211 ) {
 	    if ( chain.stop_flag == 2 )
-	      hist_pion_mom_range_muon_misid->Fill(recon_momentum, ev.weight);
+	      // hist_pion_mom_range_muon_misid->Fill(recon_momentum, ev.weight);
+	      hist_pion_mom_mcs_muon_misid->Fill(recon_momentum, ev.weight);
 	    else if ( chain.stop_flag == 0 )
 	      hist_pion_mom_mcs_muon_misid->Fill(recon_momentum, ev.weight);
 
 	    hist_pion_mom_muon_misid->Fill(recon_momentum, ev.weight);
+	  }
+	  else {
+	    recon_momentum = chain.ecc_mcs_mom[0];
+	    hist_other_mom_mcs->Fill(recon_momentum, ev.weight);
 	  }
 	}
       }
@@ -538,6 +614,7 @@ void AnalyzeMomentum(std::string b2filename,
   hist_proton_mom_recon_true->Write();
   hist_proton_mom_recon_true_mcs->Write();
   hist_proton_mom_recon_true_range->Write();
+  hist_other_mom_mcs->Write();
   hist_pbeta_muon_proton->Write();
 
   hist_muon_misid_mom->Write();
@@ -570,6 +647,21 @@ void AnalyzeMomentum(std::string b2filename,
     hist_mode_proton_mom[i]->Write();
     hist_mode_proton_mom_mcs[i]->Write();
     hist_mode_proton_mom_range[i]->Write();
+  }
+
+  hist_muon_mom_true->Write();
+  hist_muon_mom_true_stop->Write();
+  hist_muon_mom_true_nonstop->Write();
+  hist_muon_mom_true_single->Write();
+  hist_muon_mom_true_single_stop->Write();
+  hist_muon_mom_true_single_nonstop->Write();
+  hist_muon_misid_mom_true->Write();
+  hist_muon_misid_mom_true_stop->Write();
+  hist_muon_misid_mom_true_nonstop->Write();
+  for ( int i = 0; i < num_ninja_mode; i++ ) {
+    hist_mode_muon_mom_true[i]->Write();
+    hist_mode_muon_mom_true_stop[i]->Write();
+    hist_mode_muon_mom_true_nonstop[i]->Write();
   }
 
   hist_muon_mom_ang->Write();

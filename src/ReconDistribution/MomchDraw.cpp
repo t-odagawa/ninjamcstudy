@@ -26,9 +26,9 @@ int main (int argc, char *argv[]) {
      //logging::trivial::severity >= logging::trivial::debug
      );
 
-  if ( argc != 7 ) {
+  if ( argc != 5 ) {
     BOOST_LOG_TRIVIAL(error) << "Usage : " << argv[0]
-			     << " <file prefix> <fileid> <ecc> <mode> <systematics> <plus/minus/nominal>";
+			     << " <b2filename> <momchfilename> <ofilenname> <mode id>";
     std::exit(1);
   }
 
@@ -36,50 +36,13 @@ int main (int argc, char *argv[]) {
 
   try {
 
-    std::string prefix = argv[1];
-
-    int fileid = std::atoi(argv[2]);
-    int eccid = std::atoi(argv[3]);
-    int modeid = std::atoi(argv[4]);
-
-    std::string systematics = argv[5];
-    std::string variation = argv[6];
-    std::string momchdir;
-    std::string outputdir;
-    if ( systematics == "0" || variation == "nominal" ) {
-      momchdir = "/momch";
-      outputdir="/output";
-    }
-    else {
-      momchdir = "/momch_" + systematics + "/" + variation;
-      outputdir = "/output_" + systematics + "/" + variation;
-    }
-
-    // input B2 file   
-    std::stringstream b2filename_ss;
-    b2filename_ss << prefix << "/ninja_mc_h2o_"
-		  << fileid
-		  << ".root";
-    std::string b2filename = b2filename_ss.str();
-
+    // input B2 file
+    std::string b2filename = std::string(argv[1]);
     // input momch file
-    std::stringstream momchfilename_ss;
-    // momchfilename_ss << prefix << "/momch_mcs_scale_syst/minus/momch_ecc"
-    // momchfilename_ss << prefix << "/momch/momch_ecc"
-    momchfilename_ss << prefix << momchdir << "/momch_ecc"
-		     << eccid << "_" << fileid;
-    if ( modeid == 1 || modeid == 5 ) momchfilename_ss << "_addbm.momch";
-    else if ( modeid == 0 || modeid == 2 || modeid == 3 || modeid == 4 ||
-	      modeid == 6 || modeid == 7 || modeid == 8 ) momchfilename_ss << "_pid.momch";
-    std::string momchfilename = momchfilename_ss.str();
-
+    std::string momchfilename = std::string(argv[2]);
     // output file
-    std::stringstream outputfilename_ss;
-    // outputfilename_ss << prefix << "/output_mcs_scale_syst/minus/output_mode"
-    // outputfilename_ss << prefix << "/output/output_mode"
-    outputfilename_ss << prefix << outputdir << "/output_mode"
-		      << modeid << "_" << fileid << ".root";
-    std::string outputfilename = outputfilename_ss.str();
+    std::string outputfilename = std::string(argv[3]);
+    int modeid = std::atoi(argv[4]);
 
     switch (modeid) {
     case 0 :

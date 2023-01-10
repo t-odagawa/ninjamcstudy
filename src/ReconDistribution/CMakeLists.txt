@@ -52,3 +52,13 @@ target_link_libraries(WallDistribution
 
 install(TARGETS WallDistribution DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+add_executable(WallMomchDraw
+	WallMomchDraw.cpp
+	)
+
+target_link_libraries(WallMomchDraw
+	${NINJA_MCSTUDY_LIBRARIES}
+	NinjaMcStudy
+)
+
+install(TARGETS WallMomchDraw DESTINATION "${CMAKE_INSTALL_BINDIR}")

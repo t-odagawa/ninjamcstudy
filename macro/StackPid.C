@@ -1,6 +1,7 @@
 void StackPid() {
 
-  TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode4.root";
+  // TString filename = "/hsm/nu/ninja/pra_tmp/mc_tmp_20220620/output/output_mode4.root";
+  TString filename = "/group/nu/ninja/work/odagawa/20221020-phd-thesis-preliminary/signal/output/output_mode4.root";
   TFile *file = new TFile(filename, "read");
 
   THStack *hs_lr = new THStack("hs_lr", "Likelihood ratio;Likelihood ratio;Entries");
